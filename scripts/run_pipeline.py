@@ -20,7 +20,6 @@ def run_command(command: list[str]) -> None:
 
 def process_pdf(pdf_path: Path) -> None:
     pages_json = EXTRACTED_DIR / f"{pdf_path.stem}_pages.json"
-    chunks_json = CHUNKS_DIR / f"{pdf_path.stem}_chunks.json"
 
     run_command(
         [
@@ -35,16 +34,6 @@ def process_pdf(pdf_path: Path) -> None:
             sys.executable,
             "scripts/chunk_policy.py",
             str(pages_json),
-        ]
-    )
-
-    run_command(
-        [
-            sys.executable,
-            "scripts/parse_coverage.py",
-            str(chunks_json),
-            "--top-n",
-            "5",
         ]
     )
 

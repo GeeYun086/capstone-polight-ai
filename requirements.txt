@@ -1,4 +1,17 @@
+# PDF 처리
 pymupdf
+
+# 임베딩 및 LLM
+openai
+langchain
+langchain-openai
+langchain-community
+
+# 벡터 DB
+pgvector
+psycopg2-binary
+
+# 유틸
 python-dotenv
 tqdm
 pydantic

@@ -1,136 +1,79 @@
 {
-  "해외여행 실손의료보험": {
-    "primary_category": "medical_expense"
-  },
-  "기본형 실손의료비": {
-    "primary_category": "medical_expense"
-  },
-  "상해의료비": {
-    "primary_category": "medical_expense"
-  },
-  "질병의료비": {
-    "primary_category": "medical_expense"
-  },
-  "해외여행중 상해의료비": {
-    "primary_category": "medical_expense"
-  },
-  "해외여행중 질병의료비": {
-    "primary_category": "medical_expense"
-  },
-  "입원의료비": {
-    "primary_category": "medical_expense"
-  },
-  "통원의료비": {
-    "primary_category": "medical_expense"
-  },
-  "처방조제비": {
-    "primary_category": "medical_expense"
-  },
-  "항공기 지연": {
-    "primary_category": "flight_delay"
-  },
-  "항공기 지연비용": {
-    "primary_category": "flight_delay"
-  },
-  "항공기 지연·결항": {
-    "primary_category": "flight_delay"
-  },
-  "출발 지연": {
-    "primary_category": "flight_delay"
-  },
-  "결항": {
-    "primary_category": "flight_delay"
-  },
-  "수하물 지연": {
-    "primary_category": "flight_delay",
-    "secondary_category": "baggage"
-  },
-  "항공기 및 수하물 지연비용": {
-    "primary_category": "flight_delay",
-    "secondary_category": "baggage"
-  },
-  "휴대품손해": {
-    "primary_category": "baggage"
-  },
-  "휴대품 손해": {
-    "primary_category": "baggage"
-  },
-  "휴대품손해(분실제외)": {
-    "primary_category": "baggage"
-  },
-  "수하물 손해": {
-    "primary_category": "baggage"
-  },
-  "도난": {
-    "primary_category": "baggage"
-  },
-  "파손": {
-    "primary_category": "baggage"
-  },
-  "특별비용": {
-    "primary_category": "emergency_transport"
-  },
-  "구조송환비용": {
-    "primary_category": "emergency_transport"
-  },
-  "구조·송환비용": {
-    "primary_category": "emergency_transport"
-  },
-  "긴급이송": {
-    "primary_category": "emergency_transport"
-  },
-  "의료 후송": {
-    "primary_category": "emergency_transport"
-  },
-  "송환비용": {
-    "primary_category": "emergency_transport"
-  },
-  "치과치료비": {
-    "primary_category": "dental_emergency"
-  },
-  "치과 응급치료": {
-    "primary_category": "dental_emergency"
-  },
-  "응급 치과치료": {
-    "primary_category": "dental_emergency"
-  },
-  "배상책임": {
-    "primary_category": "liability"
-  },
-  "해외여행중 배상책임": {
-    "primary_category": "liability"
-  },
-  "일상생활 배상책임": {
-    "primary_category": "liability"
-  },
-  "대인배상": {
-    "primary_category": "liability"
-  },
-  "대물배상": {
-    "primary_category": "liability"
-  },
-  "여행취소": {
-    "primary_category": "trip_cancellation"
-  },
-  "여행중단": {
-    "primary_category": "trip_cancellation"
-  },
-  "중도귀국": {
-    "primary_category": "trip_cancellation"
-  },
-  "항공권 취소": {
-    "primary_category": "trip_cancellation"
-  },
-  "숙박 취소": {
-    "primary_category": "trip_cancellation"
-  },
-  "상해사망": {
-    "primary_category": "death_disability"
-  },
-  "후유장해": {
-    "primary_category": "death_disability"
-  },
-  "질병사망": {
-    "primary_category": "death_disability"
-  }
+  "해외여행 실손의료보험": { "primary_category": "medical_expense" },
+  "기본형 실손의료비": { "primary_category": "medical_expense" },
+  "비급여 해외여행 실손의료비": { "primary_category": "medical_expense" },
+  "상해의료비": { "primary_category": "medical_expense" },
+  "질병의료비": { "primary_category": "medical_expense" },
+  "해외여행중 상해의료비": { "primary_category": "medical_expense" },
+  "해외여행중 질병의료비": { "primary_category": "medical_expense" },
+  "입원의료비": { "primary_category": "medical_expense" },
+  "통원의료비": { "primary_category": "medical_expense" },
+  "처방조제비": { "primary_category": "medical_expense" },
+  "급여의료비": { "primary_category": "medical_expense" },
+  "비급여의료비": { "primary_category": "medical_expense" },
+  "해외 의료기관": { "primary_category": "medical_expense" },
+  "해외병원": { "primary_category": "medical_expense" },
+  "입원일당": { "primary_category": "medical_expense" },
+  "식중독 입원": { "primary_category": "medical_expense" },
+  "특정전염병": { "primary_category": "medical_expense" },
+  "국민건강보험 비가입자": { "primary_category": "medical_expense" },
+
+  "항공기 지연": { "primary_category": "flight_delay" },
+  "항공기 지연비용": { "primary_category": "flight_delay" },
+  "항공기 지연·결항": { "primary_category": "flight_delay" },
+  "항공기/수하물 지연비용": { "primary_category": "flight_delay" },
+  "항공기 및 수하물 지연비용": { "primary_category": "flight_delay", "secondary_category": "baggage" },
+  "항공기납치": { "primary_category": "flight_delay" },
+  "항공기 출발지연": { "primary_category": "flight_delay" },
+  "출발 지연": { "primary_category": "flight_delay" },
+  "결항": { "primary_category": "flight_delay" },
+  "국내공항 출국 항공기 지연": { "primary_category": "flight_delay" },
+
+  "수하물 지연": { "primary_category": "flight_delay", "secondary_category": "baggage" },
+  "수하물 손실": { "primary_category": "baggage" },
+  "수하물 손해": { "primary_category": "baggage" },
+  "휴대품손해": { "primary_category": "baggage" },
+  "휴대품 손해": { "primary_category": "baggage" },
+  "휴대품손해(분실제외)": { "primary_category": "baggage" },
+  "자택 도난": { "primary_category": "baggage" },
+  "도난": { "primary_category": "baggage" },
+  "파손": { "primary_category": "baggage" },
+  "여권 재발급": { "primary_category": "baggage" },
+  "분실 여권": { "primary_category": "baggage" },
+
+  "구조송환비용": { "primary_category": "emergency_transport" },
+  "구조·송환비용": { "primary_category": "emergency_transport" },
+  "특별비용": { "primary_category": "emergency_transport" },
+  "긴급이송": { "primary_category": "emergency_transport" },
+  "의료 후송": { "primary_category": "emergency_transport" },
+  "송환비용": { "primary_category": "emergency_transport" },
+  "이송비용": { "primary_category": "emergency_transport" },
+  "유해 이송": { "primary_category": "emergency_transport" },
+  "중대사고 구조": { "primary_category": "emergency_transport" },
+
+  "여행중단": { "primary_category": "trip_cancellation" },
+  "여행취소": { "primary_category": "trip_cancellation" },
+  "중도귀국": { "primary_category": "trip_cancellation" },
+  "귀국 추가비용": { "primary_category": "trip_cancellation" },
+  "중단사고 귀국": { "primary_category": "trip_cancellation" },
+  "항공권 취소": { "primary_category": "trip_cancellation" },
+  "숙박 취소": { "primary_category": "trip_cancellation" },
+
+  "배상책임": { "primary_category": "liability" },
+  "해외여행중 배상책임": { "primary_category": "liability" },
+  "일상생활 배상책임": { "primary_category": "liability" },
+  "대인배상": { "primary_category": "liability" },
+  "대물배상": { "primary_category": "liability" },
+
+  "치과치료비": { "primary_category": "dental_emergency" },
+  "치과 응급치료": { "primary_category": "dental_emergency" },
+  "응급 치과치료": { "primary_category": "dental_emergency" },
+
+  "상해사망": { "primary_category": "death_disability" },
+  "질병사망": { "primary_category": "death_disability" },
+  "후유장해": { "primary_category": "death_disability" },
+  "장해지급률": { "primary_category": "death_disability" },
+  "장해판정기준": { "primary_category": "death_disability" },
+  "장해의 정의": { "primary_category": "death_disability" },
+  "고도후유장해": { "primary_category": "death_disability" }
 }

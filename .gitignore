@@ -18,12 +18,14 @@ data/raw_pdfs/*
 data/extracted_text/*
 data/chunks/*
 data/parsed_results/*
+data/embeddings/*
 
 # Keep folder structure
 !data/raw_pdfs/.gitkeep
 !data/extracted_text/.gitkeep
 !data/chunks/.gitkeep
 !data/parsed_results/.gitkeep
+!data/embeddings/.gitkeep
 
 # OS files
 .DS_Store
