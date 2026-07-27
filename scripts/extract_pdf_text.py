@@ -1,14 +1,3 @@
-"""
-[파일 개요 - 코드리뷰]
-PDF(보험약관) 원문에서 페이지 단위로 "정제된" 텍스트를 뽑아내는 스크립트.
-PyMuPDF(fitz)로 PDF의 텍스트 블록(block) 좌표를 읽어서,
-1) 모든 페이지에 반복되는 머리말/꼬리말(회사명, 페이지 번호 등)을 통계적으로 찾아 제거하고
-2) 블록들을 같은 줄(row)로 묶은 뒤, 좌우로 배치된 블록(표/레이블-내용 구조)의 읽기 순서를 보정해서
-3) 최종적으로 사람이 읽는 순서와 비슷한 문자열로 합친다.
-이 스크립트의 출력(*_pages.json)이 chunk_policy.py의 입력이 된다.
-파이프라인 순서: extract_pdf_text.py -> chunk_policy.py -> embed_chunks.py
-"""
-
 import argparse
 import json
 import re
@@ -40,16 +29,7 @@ MIN_BLOCK_CHARS = 2
 COLUMN_SEPARATOR = " | "
 
 
-# [코드리뷰] collect_repeated_texts
-# 역할: 문서 전체를 훑으며 "페이지마다 똑같이 반복되는 문구"(예: 회사 로고 문구, 문서 제목,
-#       페이지 번호 등)를 찾아낸다.
-# 동작 방식:
-#   - 모든 페이지의 텍스트 블록 중, y좌표가 페이지 상단 8%(HEADER_Y_RATIO) 이내면 헤더 후보,
-#     하단 8%(FOOTER_Y_RATIO 이후) 이내면 푸터 후보로 分류해 Counter로 등장 횟수를 센다.
-#   - 전체 페이지 수의 40%(REPEATED_TEXT_MIN_RATIO) 이상 등장한 텍스트만 "반복 텍스트"로 확정.
-# 왜 이렇게 짜여있나: 페이지마다 다른 헤더/푸터(장 제목 등)는 걸러내고, 진짜 고정 반복
-#   요소만 잡아내기 위해 "비율 기반 임계값"을 사용한다. 나중에 extract_page_text에서
-#   이 set에 포함된 텍스트를 실제로 제거한다.
+# 문서 전체에서 상/하단에 반복 등장하는 텍스트(고정 헤더/푸터)를 찾아 set으로 반환
 def collect_repeated_texts(doc: fitz.Document) -> set[str]:
     """
     전체 문서에서 상단/하단에 반복 등장하는 텍스트를 수집한다.
@@ -59,6 +39,7 @@ def collect_repeated_texts(doc: fitz.Document) -> set[str]:
     header_counter: Counter = Counter()
     footer_counter: Counter = Counter()
 
+    # 모든 페이지의 모든 텍스트 블록을 순회
     for page in doc:
         page_h = page.rect.height
         for b in page.get_text("blocks"):
@@ -67,11 +48,13 @@ def collect_repeated_texts(doc: fitz.Document) -> set[str]:
             if not text or len(text) < MIN_BLOCK_CHARS:
                 continue
             normalized = " ".join(text.split())
+            # 페이지 상단 8% 안 -> 헤더 후보 / 하단 8% 안 -> 푸터 후보로 카운트
             if y1 < page_h * HEADER_Y_RATIO:
                 header_counter[normalized] += 1
             elif y0 > page_h * FOOTER_Y_RATIO:
                 footer_counter[normalized] += 1
 
+    # 전체 페이지의 40% 이상 등장한 텍스트만 "진짜 반복 요소"로 확정
     threshold = total_pages * REPEATED_TEXT_MIN_RATIO
     repeated = set()
     for text, count in header_counter.items():
@@ -84,13 +67,7 @@ def collect_repeated_texts(doc: fitz.Document) -> set[str]:
     return repeated
 
 
-# [코드리뷰] is_page_number_line
-# 역할: 한 줄짜리 텍스트가 "페이지 번호 라인"인지 정규식으로 판별한다.
-# 예시로 매칭되는 패턴: "- 12 -", "12", "- 12 -  카카오페이손보" 등
-#   (숫자 앞뒤로 하이픈/en-dash/em-dash가 있을 수 있고, 뒤에 짧은 문자열이 붙을 수 있음)
-# 왜 필요한가: collect_repeated_texts는 "완전히 동일한 문자열"이 반복될 때만 잡아내는데,
-#   페이지 번호는 페이지마다 숫자가 달라져서 그 로직으로는 걸러지지 않는다.
-#   그래서 별도의 정규식 기반 필터를 둔 것.
+# "- 12 -", "12" 같은 페이지 번호 단독 라인인지 정규식으로 판별
 def is_page_number_line(text: str) -> bool:
     """페이지 번호 단독 라인 여부 판단."""
     stripped = text.strip()
@@ -98,21 +75,13 @@ def is_page_number_line(text: str) -> bool:
     return bool(re.match(r"^[-–—]?\s*\d{1,4}\s*[-–—]?\s*\S{0,20}$", stripped))
 
 
-# [코드리뷰] group_blocks_into_rows
-# 역할: PyMuPDF가 반환한 블록(각각 x0,y0,x1,y1,text 좌표 포함)들을,
-#       화면에서 "같은 줄(row)"에 있다고 볼 수 있는 것끼리 묶는다.
-# 동작 방식:
-#   1. 블록들을 y0(위쪽 좌표) 기준 오름차순 정렬.
-#   2. 현재 그룹의 최대 y1(그 줄에서 가장 아래로 내려간 지점)보다 새 블록의 y중심이 더 아래에
-#      있으면 새로운 row 시작, 아니면(y범위가 겹치면) 같은 row에 추가.
-# 왜 필요한가: PDF 블록은 왼쪽->오른쪽 순서가 아니라 내부적으로 배치 순서대로 나올 수 있어서
-#   (예: 표에서 2번째 컬럼이 먼저 나오는 경우), 같은 줄에 있는 블록들을 먼저 묶은 뒤
-#   가로 위치(x좌표)로 재정렬해야 사람이 읽는 순서가 나온다. (아래 format_row에서 재정렬)
+# 블록들을 y좌표가 겹치는 것끼리 같은 줄(row)로 묶는다
 def group_blocks_into_rows(blocks: list) -> list[list]:
     """
     블록들을 y 범위가 겹치는 행(row) 단위로 묶는다.
     각 row는 블록 리스트이며, y 오름차순으로 정렬된다.
     """
+    # y0(위쪽 좌표) 기준 정렬 후 순서대로 스캔
     sorted_by_y = sorted(blocks, key=lambda b: b[1])
     rows: list[list] = []
     current_row: list = []
@@ -121,6 +90,7 @@ def group_blocks_into_rows(blocks: list) -> list[list]:
     for b in sorted_by_y:
         y0, y1 = b[1], b[3]
         y_center = (y0 + y1) / 2
+        # 현재 row의 최대 y1보다 아래에 있으면 새 줄, 겹치면 같은 줄
         if current_y_max < 0 or y_center > current_y_max:
             if current_row:
                 rows.append(current_row)
@@ -135,17 +105,7 @@ def group_blocks_into_rows(blocks: list) -> list[list]:
     return rows
 
 
-# [코드리뷰] format_row
-# 역할: 같은 줄(row)에 속한 블록들을 최종 텍스트 한 줄/여러 줄로 합친다.
-# 3가지 케이스로 분기:
-#   1) 블록이 1개뿐이면 그대로 반환.
-#   2) 블록이 정확히 2개이고, 왼쪽 블록이 페이지 폭의 45%(TABLE_LEFT_CELL_MAX_RATIO) 이내에서
-#      끝나는 "레이블"처럼 보이면 -> "레이블\n내용" 형태로 합침 (약관의 "조항명 / 본문" 구조 보존용).
-#   3) 그 외 2개 이상 블록(N컬럼 표 행) -> 각 블록 내부 줄바꿈을 공백으로 합쳐 한 줄로 만들고,
-#      블록 사이는 COLUMN_SEPARATOR(" | ")로 이어붙임. 나중에 이 구분자로 split하면 원래
-#      컬럼 값을 그대로 복원할 수 있다 (표 데이터 파싱을 염두에 둔 설계).
-# 인터뷰 포인트: 왜 줄바꿈이 아니라 " | "를 쓰는지 -> 셀 안에 원래 있던 줄바꿈과, 컬럼과 컬럼
-#   사이의 경계를 구분하기 위함.
+# 한 줄(row)의 블록들을 최종 텍스트로 합친다 (1블록/2블록 레이블/N블록 표로 분기)
 def format_row(row: list, page_width: float) -> str:
     """
     한 행(row)의 블록들을 텍스트로 변환한다.
@@ -158,27 +118,28 @@ def format_row(row: list, page_width: float) -> str:
       컬럼 사이는 개행이 아닌 별도 구분자를 사용한다 - 이렇게 하면 한 표 행이 한 줄로 나오고,
       COLUMN_SEPARATOR로 split하면 컬럼별 값을 그대로 복원할 수 있다.
     """
+    # 블록 1개 -> 그대로 반환
     if len(row) == 1:
         return row[0][4].strip()
 
     label_threshold = page_width * TABLE_LEFT_CELL_MAX_RATIO
     sorted_row = sorted(row, key=lambda b: b[0])
 
-    # 좌측 레이블 + 우측 내용 패턴 감지 (2블록 전용)
+    # 블록 2개 -> "레이블 + 내용" 패턴인지 검사
     if len(sorted_row) == 2:
         left, right = sorted_row
         left_x1 = left[2]
         right_x0 = right[0]
         left_text = left[4].strip()
         right_text = right[4].strip()
+        # 왼쪽이 짧고 페이지 좌측 45% 안에서 끝나면 레이블로 간주해 "레이블\n내용"으로 합침
         if left_x1 <= label_threshold and right_x0 > label_threshold * 0.7:
-            # 레이블이 짧고(한 단어~짧은 구) 내용이 길면 인라인 합침
             if left_text and right_text:
                 clean_label = " ".join(left_text.split())
                 clean_right = right_text
                 return f"{clean_label}\n{clean_right}"
 
-    # N블록(컬럼) 표 행: 블록마다 내부 줄바꿈을 한 줄로 합치고, 컬럼 구분자로 연결
+    # 그 외(N컬럼 표 행) -> 블록마다 내부 줄바꿈을 한 줄로 합치고 " | "로 연결
     columns = []
     for b in sorted_row:
         raw = b[4].strip()
@@ -189,14 +150,7 @@ def format_row(row: list, page_width: float) -> str:
     return COLUMN_SEPARATOR.join(columns)
 
 
-# [코드리뷰] extract_page_text
-# 역할: 한 페이지에 대해 위 헬퍼 함수들을 조합해 최종 정제 텍스트를 만드는 오케스트레이터.
-# 처리 순서:
-#   1. page.get_text("blocks")로 블록 추출 후, type==0(텍스트)인 블록만 남김(1은 이미지).
-#   2. group_blocks_into_rows로 같은 줄끼리 묶음.
-#   3. 각 row 안에서 노이즈(너무 짧은 블록, 반복 헤더/푸터, 페이지 번호)를 제거.
-#   4. format_row로 줄 단위 텍스트 생성 후, 내부 공백을 정리.
-#   5. 모든 줄을 개행으로 이어붙여 페이지 전체 텍스트로 반환.
+# 페이지 하나를 블록 추출 -> 줄 묶기 -> 노이즈 제거 -> 텍스트 조립까지 전부 처리
 def extract_page_text(
     page: fitz.Page,
     repeated_texts: set[str],
@@ -213,14 +167,14 @@ def extract_page_text(
     page_h = page.rect.height
     blocks = page.get_text("blocks")
 
-    # 텍스트 블록만 필터 (type=0 이 텍스트, type=1 이 이미지)
+    # type=0(텍스트)만 남기고 type=1(이미지)은 제외
     text_blocks = [b for b in blocks if b[6] == 0]
 
     rows = group_blocks_into_rows(text_blocks)
 
     lines = []
     for row in rows:
-        # 행 내 각 블록에서 노이즈 필터 적용 후 유효 블록만 남김
+        # 줄 안에서 짧은 노이즈/반복 헤더푸터/페이지번호 블록 제거
         clean_row = []
         for b in row:
             raw_text = b[4].strip()
@@ -240,7 +194,7 @@ def extract_page_text(
         if not row_text.strip():
             continue
 
-        # 블록 내 줄바꿈 정리
+        # 블록 내부 줄바꿈들을 공백 정리
         cleaned_lines = []
         for line in row_text.splitlines():
             cleaned = " ".join(line.strip().split())
@@ -253,13 +207,7 @@ def extract_page_text(
     return "\n".join(lines)
 
 
-# [코드리뷰] extract_pdf_pages
-# 역할: 스크립트의 핵심 진입점 함수. PDF 파일 경로를 받아 페이지별 텍스트 리스트를 반환한다.
-# 동작: fitz.open으로 PDF를 열고(암호화된 PDF는 예외 처리), collect_repeated_texts로
-#       문서 전체의 반복 텍스트를 1회 계산한 뒤, 각 페이지마다 extract_page_text를 호출.
-#       결과는 [{"page": 1, "text": "..."}, ...] 형태의 리스트.
-# 참고: table_eval_compare.py에서도 이 함수를 그대로 import해서 재사용한다
-#       (기존 파이프라인 로직을 건드리지 않고 비교 실험에 활용).
+# PDF 경로를 받아 페이지별 텍스트 리스트를 반환하는 진입 함수 (table_eval_compare.py도 재사용)
 def extract_pdf_pages(pdf_path: Path) -> list[dict]:
     if not pdf_path.exists():
         raise FileNotFoundError(f"PDF 파일을 찾을 수 없습니다: {pdf_path}")
@@ -268,6 +216,7 @@ def extract_pdf_pages(pdf_path: Path) -> list[dict]:
         if doc.is_encrypted:
             raise ValueError(f"암호화된 PDF는 처리할 수 없습니다: {pdf_path.name}")
 
+        # 반복 헤더/푸터는 문서 전체 기준으로 1번만 계산
         repeated_texts = collect_repeated_texts(doc)
 
         pages = []
@@ -283,19 +232,14 @@ def extract_pdf_pages(pdf_path: Path) -> list[dict]:
     return pages
 
 
-# [코드리뷰] save_pages_json
-# 역할: 추출된 페이지 리스트를 JSON 파일로 저장하는 단순 IO 헬퍼.
-#       ensure_ascii=False로 한글이 유니코드 escape 없이 그대로 저장되게 함.
+# 결과를 JSON으로 저장 (한글이 유니코드 escape 없이 저장되도록 ensure_ascii=False)
 def save_pages_json(pages: list[dict], output_path: Path) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w", encoding="utf-8") as f:
         json.dump(pages, f, ensure_ascii=False, indent=2)
 
 
-# [코드리뷰] main (CLI 진입점)
-# 역할: argparse로 "PDF 경로"와 "출력 디렉토리"를 받아 추출을 실행하고,
-#       결과를 <PDF파일명>_pages.json으로 저장한 뒤 페이지 수/글자 수 등 요약을 출력한다.
-# 실행 예: python scripts/extract_pdf_text.py data/raw_pdfs/example.pdf
+# CLI 진입점: PDF 경로를 받아 추출 실행 후 <이름>_pages.json으로 저장, 요약 출력
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Extract page-level text from a travel insurance PDF."
