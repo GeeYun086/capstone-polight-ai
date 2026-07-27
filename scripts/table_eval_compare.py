@@ -8,6 +8,12 @@ PyMuPDF(기존 파이프라인) vs table-transformer 표 추출 정확도/속도
   다르게 나오더라도 텍스트 내용 보존 여부를 공정하게 비교하기 위함)
 - table-transformer는 페이지에 표 후보가 여러 개 감지된 경우, 정답과
   가장 잘 맞는 후보를 선택한다(표 선택 모호성과 구조 인식 정확도를 분리해서 보기 위함).
+
+[파일 개요 - 코드리뷰]
+두 가지 표 추출 방식(규칙 기반 PyMuPDF vs 딥러닝 table-transformer)의 성능을
+같은 기준(ground truth 대비 재현율)으로 채점해서 comparison_report.json으로
+남기는 스크립트. "어느 방법이 더 정확하고 빠른가"를 정량적으로 비교하는 것이 목적이며,
+실제 서비스 로직에는 영향을 주지 않는 독립적인 실험/평가 도구다.
 """
 
 import difflib
@@ -28,10 +34,23 @@ EVAL_DIR = PROJECT_ROOT / "data" / "table_eval"
 RECALL_THRESHOLD = 0.7
 
 
+# [코드리뷰] normalize
+# 역할: 텍스트 비교 전 모든 공백(스페이스, 줄바꿈 등)을 제거해서, 줄바꿈 위치나
+#       띄어쓰기 차이 때문에 실제로 같은 내용인데 다르다고 판정되는 것을 방지한다.
 def normalize(text: str) -> str:
     return re.sub(r"\s+", "", text)
 
 
+# [코드리뷰] containment_ratio  (평가 지표의 핵심)
+# 역할: 정답 텍스트(gt_text)가 후보 텍스트(candidate_text) 안에 얼마나 포함돼
+#       있는지를 0~1 사이 비율로 계산한다("내용 재현율").
+# 왜 difflib.SequenceMatcher를 쓰는가: 단순 "in" 연산자로는 부분적으로만 일치하는
+#   경우(중간에 한두 글자가 다르게 인식된 경우)를 전혀 반영하지 못한다.
+# 왜 get_matching_blocks() 전체 합을 쓰는가(단일 최장 매칭이 아니라):
+#   최장 연속 매칭 1개만 쓰면, 예를 들어 실제로는 내용이 거의 100% 살아있어도
+#   중간에 아주 짧은 삽입/누락 한 곳 때문에 매칭이 두 조각으로 쪼개져 점수가
+#   부당하게 낮게(예: 70% 미만) 나올 수 있다. 그래서 모든 매칭 블록의 글자 수를
+#   전부 더해 "전체 문자 단위 재현율"로 계산한다.
 def containment_ratio(gt_text: str, candidate_text: str) -> float:
     """
     gt_text가 candidate_text 안에 (공백 무시하고) 얼마나 온전히 들어있는지 비율.
@@ -52,17 +71,32 @@ def containment_ratio(gt_text: str, candidate_text: str) -> float:
     return matched_chars / len(gt)
 
 
+# [코드리뷰] flatten_tt_candidate
+# 역할: table-transformer 결과(2차원 rows 리스트)를 하나의 긴 문자열(blob)로 펼친다.
+#       셀 순서와 무관하게 "내용이 다 들어있는지"만 보는 재현율 계산에 쓰기 위함.
 def flatten_tt_candidate(candidate: dict) -> str:
     cells = [cell for row in candidate["rows"] for cell in row]
     return "\n".join(cells)
 
 
+# [코드리뷰] score_against_blob
+# 역할: 정답 셀 리스트(gt_cells) 각각에 대해 containment_ratio를 계산하고,
+#       임계값(RECALL_THRESHOLD=0.7) 이상인 셀의 비율을 최종 recall 점수로 낸다.
+# 즉, "셀 하나하나가 얼마나 잘 보존됐는가"의 평균이 아니라 "얼마나 많은 셀이
+# 충분히(70% 이상) 보존됐는가"라는 이진 통과 기준의 비율로 재현율을 정의한다.
 def score_against_blob(gt_cells: list[str], blob: str) -> tuple[float, list[float]]:
     ratios = [containment_ratio(cell, blob) for cell in gt_cells]
     recall = sum(1 for r in ratios if r >= RECALL_THRESHOLD) / len(ratios)
     return recall, ratios
 
 
+# [코드리뷰] evaluate_pymupdf
+# 역할: 정답 목록을 PDF 파일별로 묶어서(같은 PDF는 한 번만 처리), 각 PDF에 대해
+#       extract_pdf_pages(기존 파이프라인 함수)를 1회 호출한 뒤, 정답에 명시된
+#       페이지의 추출 텍스트를 score_against_blob으로 채점한다.
+# 시간 측정 방식: PDF 1개 전체를 처리하는 데 걸린 시간(elapsed_total)을 페이지 수로
+#   나눠 "페이지당 평균 처리 시간"을 추정한다 - PyMuPDF는 페이지 단위 호출 API가
+#   없어서(문서 전체를 한 번에 열고 순회) 개별 페이지 시간을 직접 잴 수 없기 때문.
 def evaluate_pymupdf(ground_truth: list[dict]) -> dict:
     """PDF별로 1회씩 extract_pdf_pages를 호출(기존 파이프라인 그대로)하고, 페이지별 텍스트를 채점."""
     results = {}
@@ -91,6 +125,15 @@ def evaluate_pymupdf(ground_truth: list[dict]) -> dict:
     return results
 
 
+# [코드리뷰] evaluate_table_transformer
+# 역할: table_transformer_extract.py가 미리 생성해둔 결과(tt_results, 표 후보들 포함)를
+#       ground truth와 대조해 채점한다.
+# 핵심 로직: 한 table_id에 여러 표 후보(candidates)가 있을 수 있으므로, 각 후보를
+#   전부 채점해보고 recall이 가장 높은 후보를 "정답과 가장 잘 맞는 후보"로 선택한다
+#   (best_idx/best_recall/best_ratios로 추적). 후보가 아예 없으면 recall=0으로 처리.
+# 이렇게 설계한 이유: table-transformer가 표를 아예 못 찾은 경우와, 표는 찾았지만
+#   구조 인식이 부정확한 경우를 구분해서 볼 수 있게(chosen_candidate_idx, num_candidates
+#   필드로 어떤 후보가 선택됐는지도 함께 기록).
 def evaluate_table_transformer(ground_truth: list[dict], tt_results: list[dict]) -> dict:
     tt_by_id = {r["table_id"]: r for r in tt_results}
     results = {}
@@ -132,6 +175,12 @@ def evaluate_table_transformer(ground_truth: list[dict], tt_results: list[dict])
     return results
 
 
+# [코드리뷰] main (CLI 진입점, 비교 리포트 생성)
+# 역할: ground_truth.json과 table_transformer_results.json을 읽어 두 방식을 각각
+#       채점(evaluate_pymupdf, evaluate_table_transformer)하고, table_id별로 결과를
+#       나란히 정리한 report_rows를 만들어 comparison_report.json으로 저장한다.
+#       마지막으로 콘솔에 표 형태로 recall/속도를 비교 출력하고, 전체 평균도 계산한다.
+# 실행 예: python scripts/table_eval_compare.py
 def main() -> None:
     ground_truth = json.loads((EVAL_DIR / "ground_truth.json").read_text(encoding="utf-8"))
     tt_results = json.loads((EVAL_DIR / "table_transformer_results.json").read_text(encoding="utf-8"))
