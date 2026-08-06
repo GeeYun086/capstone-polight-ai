@@ -1,4 +1,3 @@
-import json
 import logging
 from pathlib import Path
 
@@ -6,6 +5,8 @@ import httpx
 
 from app.clients import spring_client
 from app.clients.spring_client import SpringCallbackError
+from app.repositories import VectorRepository, get_vector_repository
+from app.repositories.base import ChunkScope
 from app.schemas.analysis import AnalysisCompleteCallback, AnalysisFailCallback, CoverageItemPayload
 from app.schemas.analysis import AnalysisStartRequest
 from app.services.chunking_service import chunk_pages
@@ -16,8 +17,6 @@ logger = logging.getLogger(__name__)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 RAW_PDF_DIR = PROJECT_ROOT / "data" / "raw_pdfs"
-CHUNKS_DIR = PROJECT_ROOT / "data" / "chunks"
-EMBEDDINGS_DIR = PROJECT_ROOT / "data" / "embeddings"
 
 
 def _download_pdf(download_url: str, document_id: str) -> Path:
@@ -31,19 +30,6 @@ def _download_pdf(download_url: str, document_id: str) -> Path:
                 f.write(data)
 
     return pdf_path
-
-
-# DB 연결 전까지는 chunk/embedding 결과를 로컬 파일로 남겨 확인 가능하게 함.
-# 내일 pgvector 연결되면 이 저장 로직을 repositories/ 구현체 호출로 교체.
-def _save_results(analysis_result_id: str, chunks: list[dict], embeddings: dict[str, list[float]]) -> None:
-    CHUNKS_DIR.mkdir(parents=True, exist_ok=True)
-    EMBEDDINGS_DIR.mkdir(parents=True, exist_ok=True)
-
-    with (CHUNKS_DIR / f"{analysis_result_id}_chunks.json").open("w", encoding="utf-8") as f:
-        json.dump(chunks, f, ensure_ascii=False, indent=2)
-
-    with (EMBEDDINGS_DIR / f"{analysis_result_id}_embeddings.json").open("w", encoding="utf-8") as f:
-        json.dump(embeddings, f, ensure_ascii=False)
 
 
 # 콜백 전송 자체의 실패(Spring 다운 등)는 파이프라인 성공/실패와 별개 문제이므로
@@ -77,13 +63,31 @@ def _safe_notify_fail(analysis_result_id: str, error_message: str) -> None:
 
 
 # BackgroundTasks로 호출되는 진입점.
-def process_analysis(request: AnalysisStartRequest) -> None:
+#
+# repository를 인자로 받는 이유는 두 가지다. (1) 테스트에서 가짜 저장소를 넣어 DB/API 없이
+# 파이프라인을 검증할 수 있고, (2) pgvector로 갈아탈 때 이 함수를 수정할 필요가 없다.
+#
+# 저장이 콜백보다 먼저 일어나야 한다. Spring의 coverage_item_sources가 chunk_id를 FK로
+# 참조하기 때문에, 청크가 없는 상태에서 완료 콜백을 보내면 Spring 쪽 INSERT가 실패한다.
+def process_analysis(
+    request: AnalysisStartRequest,
+    repository: VectorRepository | None = None,
+) -> None:
+    repository = repository or get_vector_repository()
+
+    scope = ChunkScope(
+        user_id=request.user_id,
+        trip_id=request.trip_id,
+        policy_id=request.policy_id,
+        document_id=request.document_id,
+    )
+
     try:
         pdf_path = _download_pdf(request.download_url, request.document_id)
         pages = extract_pages(pdf_path)
-        chunks = chunk_pages(pages, source_file=pdf_path.name)
+        chunks = chunk_pages(pages, source_file=pdf_path.name, scope=scope)
         embeddings = embed_chunks(chunks)
-        _save_results(request.analysis_result_id, chunks, embeddings)
+        repository.save(chunks, embeddings)
     except Exception as e:
         logger.exception("analysis pipeline failed: %s", request.analysis_result_id)
         _safe_notify_fail(request.analysis_result_id, str(e))

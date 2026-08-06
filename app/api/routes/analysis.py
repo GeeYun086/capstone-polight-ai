@@ -1,5 +1,6 @@
-from fastapi import APIRouter, BackgroundTasks, status
+from fastapi import APIRouter, BackgroundTasks, Depends, status
 
+from app.repositories import VectorRepository, get_vector_repository
 from app.schemas.analysis import AnalysisStartRequest
 from app.services.analysis_service import process_analysis
 
@@ -15,8 +16,12 @@ router = APIRouter(tags=["analysis"])
     description="downloadUrl의 PDF를 비동기로 다운로드/추출/청킹/임베딩한다. "
     "즉시 202로 접수만 응답하고, 최종 결과는 Spring 콜백으로 통지한다.",
 )
-def start_analysis(request: AnalysisStartRequest, background_tasks: BackgroundTasks) -> dict[str, str]:
-    background_tasks.add_task(process_analysis, request)
+def start_analysis(
+    request: AnalysisStartRequest,
+    background_tasks: BackgroundTasks,
+    repository: VectorRepository = Depends(get_vector_repository),
+) -> dict[str, str]:
+    background_tasks.add_task(process_analysis, request, repository)
     return {
         "analysisResultId": request.analysis_result_id,
         "status": "ACCEPTED",

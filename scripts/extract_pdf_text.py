@@ -28,6 +28,28 @@ MIN_BLOCK_CHARS = 2
 # 줄바꿈이 아닌 별도 구분자를 사용한다.
 COLUMN_SEPARATOR = " | "
 
+# 일부 PDF는 폰트 인코딩 문제로 본문에 제어문자(U+0001, U+0007 등)를 섞어 내보낸다.
+# 제어문자는 공백이 아니어서 str.split()이나 정규식 \s에 걸리지 않고 그대로 살아남는데,
+# 그러면 "보상하지 않는 사항" 같은 키워드 매칭이 에러 없이 조용히 실패한다.
+# (실측: hyundai_travel_2022는 추출 텍스트의 18.4%가 U+0001이었고, 그 결과 면책 조항이
+#  단 하나도 분류되지 않았다.) 탭/개행/캐리지리턴은 레이아웃 정보라 남긴다.
+CONTROL_CHAR_RE = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
+
+
+def sanitize_text(text: str) -> str:
+    return CONTROL_CHAR_RE.sub("", text)
+
+
+# 블록 텍스트를 정제해서 반환한다. 반복 헤더 수집과 본문 추출이 같은 텍스트를 보도록
+# get_text("blocks") 호출을 이 함수로 통일한다.
+def get_sanitized_blocks(page: fitz.Page) -> list[tuple]:
+    blocks = []
+    for b in page.get_text("blocks"):
+        fields = list(b)
+        fields[4] = sanitize_text(fields[4])
+        blocks.append(tuple(fields))
+    return blocks
+
 
 # 문서 전체에서 상/하단에 반복 등장하는 텍스트(고정 헤더/푸터)를 찾아 set으로 반환
 def collect_repeated_texts(doc: fitz.Document) -> set[str]:
@@ -42,7 +64,7 @@ def collect_repeated_texts(doc: fitz.Document) -> set[str]:
     # 모든 페이지의 모든 텍스트 블록을 순회
     for page in doc:
         page_h = page.rect.height
-        for b in page.get_text("blocks"):
+        for b in get_sanitized_blocks(page):
             x0, y0, x1, y1, text, *_ = b
             text = text.strip()
             if not text or len(text) < MIN_BLOCK_CHARS:
@@ -165,7 +187,7 @@ def extract_page_text(
     """
     page_w = page.rect.width
     page_h = page.rect.height
-    blocks = page.get_text("blocks")
+    blocks = get_sanitized_blocks(page)
 
     # type=0(텍스트)만 남기고 type=1(이미지)은 제외
     text_blocks = [b for b in blocks if b[6] == 0]

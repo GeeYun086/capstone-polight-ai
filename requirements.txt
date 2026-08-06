@@ -16,8 +16,12 @@ langchain-community
 # 벡터 DB
 pgvector
 psycopg2-binary
+numpy  # pgvector 연결 전까지 로컬 파일 기반 코사인 유사도 검색에 사용
 
 # 유틸
 python-dotenv
 tqdm
 pydantic
+
+# 테스트
+pytest

@@ -37,7 +37,19 @@ SECTION_TITLE_PATTERNS = [
 NOISE_TITLE_KEYWORDS = ["목차", "개인정보", "상품요약서", "가입자 유의사항", "주요내용 요약서"]
 
 # coverage_type 감지 키워드
-EXCLUDED_KEYWORDS = ["보상하지 않는 손해", "보상하지 아니하는 손해", "보험금을 지급하지 않는", "면책사항", "지급하지 않는 사유"]
+# "손해"/"사항"은 보험사별 표기 차이다. 현대해상은 "보상하지 않는 사항"을 쓰고 "손해"를 쓰지 않아,
+# 손해형 키워드만 있으면 면책 조항이 통째로 누락된다.
+EXCLUDED_KEYWORDS = [
+    "보상하지 않는 손해",
+    "보상하지 않는 사항",
+    "보상하지 아니하는 손해",
+    "보상하지 아니하는 사항",
+    "보험금을 지급하지 않는",
+    "면책사항",
+    "지급하지 않는 사유",
+    "보상하지 않습니다",
+    "보상하지 아니합니다",
+]
 INCLUDED_KEYWORDS = ["보상하는 손해", "보험금의 지급사유", "보험금 지급사유", "지급기준"]
 PROCEDURE_KEYWORDS = ["보험금의 청구", "청구서류", "지급절차", "보험금 청구", "서류를 제출"]
 DEFINITION_KEYWORDS = ["용어의 정의", "용어 해설", "보험용어"]
@@ -115,15 +127,21 @@ def extract_title(line: str) -> str:
 
 # 제목+본문 앞부분을 보고 조항 성격을 4종(면책/청구절차/용어정의/보장)으로 분류
 def detect_coverage_type(title: str, text: str) -> str:
-    combined = f"{title}\n{text[:500]}"
+    # match_category와 동일하게 정규화해서 비교한다. 원문 그대로 비교하면 PDF에서 넘어온
+    # 줄바꿈이나 불규칙한 공백("보상하지  않는") 때문에 매칭이 조용히 실패한다.
+    combined = normalize_for_match(f"{title}\n{text[:500]}")
+
+    def has(keywords: list[str]) -> bool:
+        return any(normalize_for_match(kw) in combined for kw in keywords)
+
     # 우선순위: 면책 -> 청구절차 -> 용어정의 -> 보장(기본값)
-    if any(kw in combined for kw in EXCLUDED_KEYWORDS):
+    if has(EXCLUDED_KEYWORDS):
         return "excluded"
-    if any(kw in combined for kw in PROCEDURE_KEYWORDS):
+    if has(PROCEDURE_KEYWORDS):
         return "procedure"
-    if any(kw in combined for kw in DEFINITION_KEYWORDS):
+    if has(DEFINITION_KEYWORDS):
         return "definition"
-    if any(kw in combined for kw in INCLUDED_KEYWORDS):
+    if has(INCLUDED_KEYWORDS):
         return "included"
     return "included"
 
@@ -298,7 +316,9 @@ def merge_small_chunks(chunks: list[dict]) -> list[dict]:
                 "matched_category": current["matched_category"] or nxt["matched_category"],
                 "secondary_category": current["secondary_category"] or nxt["secondary_category"],
                 "matched_keyword": current["matched_keyword"] or nxt["matched_keyword"],
-                "coverage_type": current["coverage_type"],
+                # coverage_type은 여기서 정하지 않는다. 병합 전 원본 청크 기준으로 판정된 값이라
+                # 흡수된 청크(예: 면책 조항)의 성격이 사라진다. 병합이 끝난 뒤
+                # reclassify_coverage_types()가 합쳐진 본문 전체를 보고 다시 판정한다.
             }
             i += 1
 
@@ -306,6 +326,68 @@ def merge_small_chunks(chunks: list[dict]) -> list[dict]:
         i += 1
 
     return merged
+
+
+# MAX_CHUNK_CHARS를 넘는 청크를 줄 경계에서 분할한다.
+# 상수는 선언돼 있었지만 실제로 적용되는 곳이 없어 최대 16,000자 청크가 그대로 통과했다.
+# 임베딩 모델 입력 한도(text-embedding-3-small = 8,191토큰)를 넘으면 API 호출 자체가 실패하고,
+# embed_chunks.py는 배치 단위로 보내기 때문에 청크 하나가 배치 50개를 같이 죽인다.
+# 한 청크에 여러 주제가 섞이면 벡터가 희석돼 검색 정확도도 떨어진다.
+def split_large_chunks(chunks: list[dict]) -> list[dict]:
+    result: list[dict] = []
+
+    for chunk in chunks:
+        if chunk["char_count"] <= MAX_CHUNK_CHARS:
+            result.append(chunk)
+            continue
+
+        # 1차: 줄 경계에서 자른다 (조항 내용이 줄 중간에서 끊기지 않도록)
+        parts: list[list[str]] = [[]]
+        length = 0
+        for line in chunk["text"].splitlines():
+            if length and length + len(line) + 1 > MAX_CHUNK_CHARS:
+                parts.append([])
+                length = 0
+            parts[-1].append(line)
+            length += len(line) + 1
+
+        # 2차: 한 줄 자체가 한도를 넘는 경우(표 행이 " | "로 길게 이어진 경우 등)
+        # 줄 경계가 없으므로 글자 수로 강제 분할해 한도를 반드시 지킨다.
+        texts: list[str] = []
+        for part_lines in parts:
+            text = "\n".join(part_lines).strip()
+            if not text:
+                continue
+            while len(text) > MAX_CHUNK_CHARS:
+                texts.append(text[:MAX_CHUNK_CHARS])
+                text = text[MAX_CHUNK_CHARS:]
+            if text:
+                texts.append(text)
+
+        # 첫 조각은 원래 chunk_id를 유지하고 이어지는 조각에만 _2, _3 접미사를 붙인다.
+        # chunk_id는 policy_chunks의 PK가 되므로 ASCII 유지와 고유성이 중요하다.
+        for i, text in enumerate(texts, start=1):
+            result.append(
+                {
+                    **chunk,
+                    "chunk_id": chunk["chunk_id"] if i == 1 else f"{chunk['chunk_id']}_{i}",
+                    "text": text,
+                    "char_count": len(text),
+                }
+            )
+
+    return result
+
+
+# 병합이 끝난 본문 전체를 다시 보고 coverage_type을 재판정한다.
+# detect_coverage_type은 병합 전 원본 청크마다 실행되기 때문에, 작은 included 청크가
+# 뒤따르는 면책 조항을 흡수하면 결과 청크가 면책 본문을 담고도 included로 남는다.
+# 면책 조항이 보장 조항으로 위장되면 RAG가 "보상된다"의 근거로 인용하게 되므로,
+# link_exclusion_pairs보다 먼저 실행해야 한다 (페어링이 coverage_type에 의존).
+def reclassify_coverage_types(chunks: list[dict]) -> list[dict]:
+    for chunk in chunks:
+        chunk["coverage_type"] = detect_coverage_type(chunk["section_title"], chunk["text"])
+    return chunks
 
 
 # "보상하는 손해" 청크와 바로 뒤 "보상하지 않는 손해" 청크를 related_chunk_id로 상호 연결
@@ -336,7 +418,9 @@ def link_exclusion_pairs(chunks: list[dict]) -> list[dict]:
     return chunks
 
 
-# raw 생성 -> 소형 청크 병합 -> 면책쌍 연결 3단계를 순서대로 실행하는 공개 API
+# raw 생성 -> 소형 병합 -> coverage_type 재판정 -> 대형 분할 -> 면책쌍 연결 순서로 실행하는 공개 API.
+# 재판정을 분할보다 먼저 하는 이유: 조항 전체를 보고 성격을 정한 뒤 조각들이 그 라벨을 물려받게 해서,
+# 같은 조항의 조각들이 서로 다른 coverage_type을 갖는 일을 막는다.
 def create_chunks(
     pages: list[dict],
     source_file: str,
@@ -344,7 +428,9 @@ def create_chunks(
 ) -> list[dict]:
     raw = create_raw_chunks(pages, source_file, mapping_entries)
     merged = merge_small_chunks(raw)
-    linked = link_exclusion_pairs(merged)
+    retyped = reclassify_coverage_types(merged)
+    split = split_large_chunks(retyped)
+    linked = link_exclusion_pairs(split)
     return linked
 
 
