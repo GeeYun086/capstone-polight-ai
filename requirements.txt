@@ -25,3 +25,7 @@ pydantic
 
 # 테스트
 pytest
+
+# Stage 4 답변 모델 비교. 벤더마다 API 모양이 달라 공식 SDK를 쓴다.
+anthropic>=0.40.0
+google-genai>=1.0.0

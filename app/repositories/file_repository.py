@@ -5,6 +5,7 @@ from pathlib import Path
 import numpy as np
 
 from app.repositories.base import ChunkHit
+from app.services.bm25 import BM25Index
 
 logger = logging.getLogger(__name__)
 
@@ -31,11 +32,20 @@ class FileVectorRepository:
         self._chunks: list[dict] = []
         self._by_id: dict[str, dict] = {}
         self._matrix: np.ndarray | None = None
+        self._bm25: BM25Index | None = None
         self._loaded = False
 
     # ── 색인 (파이프라인 A의 ④) ────────────────────────────────
 
-    def save(self, chunks: list[dict], embeddings: dict[str, list[float]]) -> None:
+    # analysis_result_id와 scope는 pgvector 저장소에서만 쓰인다.
+    # 파일 저장소는 문서 stem으로 파일을 나누므로 받기만 하고 쓰지 않는다.
+    def save(
+        self,
+        chunks: list[dict],
+        embeddings: dict[str, list[float]],
+        analysis_result_id: str | None = None,
+        scope=None,
+    ) -> None:
         if not chunks:
             return
 
@@ -94,9 +104,38 @@ class FileVectorRepository:
         order = order[np.argsort(-scores[order])]
 
         return [
-            self._to_hit(self._chunks[i], float(scores[i]))
+            self._to_hit(self._chunks[i], float(scores[i]), self._matrix[i].tolist())
             for i in order
             if np.isfinite(scores[i])
+        ]
+
+    def search_text(
+        self,
+        query: str,
+        policy_id: str | None = None,
+        top_k: int = 8,
+    ) -> list[ChunkHit]:
+        self._ensure_loaded()
+        if not self._chunks or self._bm25 is None:
+            return []
+
+        scores = np.asarray(self._bm25.scores(query), dtype=np.float32)
+
+        if policy_id is not None:
+            mask = np.array([c.get("policy_id") == policy_id for c in self._chunks], dtype=bool)
+            if not mask.any():
+                return []
+            scores = np.where(mask, scores, -np.inf)
+
+        top_k = min(top_k, len(self._chunks))
+        order = np.argpartition(-scores, top_k - 1)[:top_k]
+        order = order[np.argsort(-scores[order])]
+
+        # 점수가 0이면 질의 토큰이 하나도 안 걸린 문서라 근거로 볼 수 없다
+        return [
+            self._to_hit(self._chunks[i], float(scores[i]), self._matrix[i].tolist())
+            for i in order
+            if np.isfinite(scores[i]) and scores[i] > 0
         ]
 
     def get_by_ids(self, chunk_ids: list[str]) -> list[ChunkHit]:
@@ -146,6 +185,18 @@ class FileVectorRepository:
         else:
             self._matrix = None
 
+        # BM25는 임베딩과 무관하게 원문만 있으면 만들 수 있다.
+        # 임베딩할 때와 같은 텍스트(특약명 + 제목 + 본문)를 색인해야 두 검색의 대상이 일치한다.
+        if chunks:
+            self._bm25 = BM25Index(
+                [
+                    f'{c.get("clause_path") or ""}\n{c["section_title"]}\n{c["text"]}'
+                    for c in chunks
+                ]
+            )
+        else:
+            self._bm25 = None
+
         self._loaded = True
         logger.info("로컬 벡터 인덱스 로드 완료: 청크 %d개", len(chunks))
 
@@ -165,7 +216,7 @@ class FileVectorRepository:
         }
 
     @staticmethod
-    def _to_hit(chunk: dict, score: float) -> ChunkHit:
+    def _to_hit(chunk: dict, score: float, embedding: list[float] | None = None) -> ChunkHit:
         return ChunkHit(
             chunk_id=chunk["chunk_id"],
             document_id=chunk.get("document_id") or Path(chunk["source_file"]).stem,
@@ -177,4 +228,5 @@ class FileVectorRepository:
             matched_category=chunk.get("matched_category"),
             related_chunk_id=chunk.get("related_chunk_id"),
             score=score,
+            embedding=embedding,
         )

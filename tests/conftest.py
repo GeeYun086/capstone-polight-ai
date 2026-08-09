@@ -11,15 +11,23 @@ from app.repositories.base import ChunkHit
 class FakeVectorRepository:
     def __init__(self, hits: list[ChunkHit] | None = None) -> None:
         self.hits = hits or []
+        self.text_hits: list[ChunkHit] = []
         self.saved: list[tuple[list[dict], dict]] = []
 
-    def save(self, chunks, embeddings):
+    def save(self, chunks, embeddings, analysis_result_id=None, scope=None):
         self.saved.append((chunks, embeddings))
+        self.saved_context = (analysis_result_id, scope)
 
     def search(self, query_vector, policy_id=None, top_k=8):
         if policy_id is None:
             return self.hits[:top_k]
         return [h for h in self.hits if h.document_id == policy_id][:top_k]
+
+    # 키워드 검색은 기본적으로 비워둔다. 비어 있으면 hybrid_search가 벡터 결과를
+    # 그대로 쓰므로, 계약 테스트는 검색 방식과 무관하게 유지된다.
+    # 융합 동작 자체는 test_hybrid_search.py에서 따로 검증한다.
+    def search_text(self, query, policy_id=None, top_k=8):
+        return self.text_hits[:top_k]
 
     def get_by_ids(self, chunk_ids):
         by_id = {h.chunk_id: h for h in self.hits}

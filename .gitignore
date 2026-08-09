@@ -20,6 +20,12 @@ data/chunks/*
 data/parsed_results/*
 data/embeddings/*
 
+# 파서/모델을 바꿔가며 비교할 때 만드는 산출물 사본
+# (예: data/chunks_pymupdf, data/embeddings_qwen)
+data/chunks_*/
+data/extracted_text_*/
+data/embeddings_*/
+
 # Keep folder structure
 !data/raw_pdfs/.gitkeep
 !data/extracted_text/.gitkeep

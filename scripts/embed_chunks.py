@@ -1,12 +1,18 @@
 import argparse
 import json
 import os
+import sys
 import time
 from pathlib import Path
 
 from dotenv import load_dotenv
 from openai import OpenAI
 from tqdm import tqdm
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from app.core.config import get_settings  # noqa: E402
+from app.services.embedding_providers import build_client, embed, get_provider  # noqa: E402
 
 load_dotenv()
 
@@ -17,22 +23,34 @@ DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "data" / "embeddings"
 # 한 번에 API에 보낼 chunk 수 (OpenAI 배치 상한: 2048)
 BATCH_SIZE = 50
 
-# 임베딩할 텍스트: 제목 + 본문 합쳐서 의미 강화
-# 제목이 본문에 이미 포함돼 있으면 중복 방지를 위해 본문만 사용
+# 임베딩할 텍스트: 상위 특약명 + 조항 제목 + 본문
+#
+# clause_path(상위 특약명)를 앞에 붙이는 이유: 조항 제목은 "제1조(보험금의 지급사유)"처럼
+# 특약마다 똑같이 반복돼 변별력이 없다. 상위 특약명이 없으면 "항공기 지연" 질의가
+# 수십 개의 동명 조항과 구분되지 않아 검색에서 밀린다.
+# 제목이 본문에 이미 포함돼 있으면 중복 방지를 위해 본문만 사용한다.
 def build_embed_text(chunk: dict) -> str:
+    clause_path = chunk.get("clause_path") or ""
     title = chunk.get("section_title") or ""
     text = chunk.get("text") or ""
+
+    parts = []
+    if clause_path and clause_path not in text:
+        parts.append(clause_path)
     if title and title not in text:
-        return f"{title}\n{text}"
-    return text
+        parts.append(title)
+    parts.append(text)
+
+    return "\n".join(parts)
 
 
-# 텍스트 배치 하나를 API로 임베딩. index 기준 정렬로 입력 순서와 출력 순서를 맞춤
-def embed_batch(client: OpenAI, texts: list[str], model: str) -> list[list[float]]:
+# 텍스트 배치 하나를 임베딩한다.
+# 벤더는 settings.embedding_provider를 따른다. Upstage는 질의/문서 모델이 달라서
+# 여기서는 반드시 문서 쪽(is_query=False)으로 호출해야 한다.
+def embed_batch(client, texts: list[str], model: str | None = None) -> list[list[float]]:
     """텍스트 배치를 임베딩 벡터로 변환한다."""
-    response = client.embeddings.create(input=texts, model=model)
-    # API 응답은 index 순서가 보장됨
-    return [item.embedding for item in sorted(response.data, key=lambda x: x.index)]
+    provider = get_provider(get_settings().embedding_provider)
+    return embed(provider, texts, is_query=False, client=client)
 
 
 # 청크 파일 하나를 처리해 임베딩 결과 파일을 생성/이어서 갱신
@@ -118,12 +136,10 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    # API 키가 없으면 배치 처리 도중이 아니라 시작 시점에 바로 실패시킴
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        raise ValueError(".env에 OPENAI_API_KEY가 설정되지 않았습니다.")
-
-    client = OpenAI(api_key=api_key)
+    # 키가 없으면 배치 처리 도중이 아니라 시작 시점에 바로 실패시킴
+    provider = get_provider(get_settings().embedding_provider)
+    client = build_client(provider)
+    print(f"임베딩 벤더: {provider.name} (문서 모델 {provider.doc_model})")
     chunks_dir = Path(args.chunks_dir)
     output_dir = Path(args.output_dir)
 

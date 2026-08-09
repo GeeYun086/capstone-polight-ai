@@ -308,8 +308,24 @@ def merge_small_chunks(chunks: list[dict]) -> list[dict]:
                 break
 
             merged_text = current["text"] + "\n" + nxt["text"]
+
+            # 병합된 청크의 제목은 내용을 더 많이 차지한 쪽 것을 쓴다.
+            # 약관은 각 특별약관이 "제N조(준용규정) 이 특별약관에 정하지 않은 사항은
+            # 보통약관을 따릅니다."라는 짧은 조항으로 끝나는데, 이게 MIN_CHUNK_CHARS 미만이라
+            # 다음 특약의 첫 조항을 흡수한다. 앞 제목을 그대로 두면 본문은 "항공기 지연 보상"인데
+            # 제목은 "준용규정"이 되고, build_embed_text가 제목을 본문 앞에 붙여 임베딩하므로
+            # 검색 품질이 직접 나빠진다. (실측: 항공기 지연 질의가 top-8에서 사라졌다)
+            # clause_path(상위 특약명)도 같이 따라가야 한다. 앞의 짧은 준용규정이 다음 특약의
+            # 첫 조항을 흡수하면서 이전 특약명을 유지하면, 임베딩에 엉뚱한 특약명이 붙는다.
+            # (실측: 항공기 지연 조항에 "특정전염병 특별약관"이 붙어 검색에서 밀렸다)
+            dominant = current if current["char_count"] >= nxt["char_count"] else nxt
+            dominant_title = dominant["section_title"]
+            dominant_path = dominant.get("clause_path") or current.get("clause_path") or nxt.get("clause_path")
+
             current = {
                 **current,
+                "section_title": dominant_title,
+                "clause_path": dominant_path,
                 "text": merged_text,
                 "char_count": len(merged_text),
                 "page_end": nxt["page_end"],
@@ -416,6 +432,146 @@ def link_exclusion_pairs(chunks: list[dict]) -> list[dict]:
             nxt["related_chunk_id"] = chunk["chunk_id"]
 
     return chunks
+
+
+# ── Upstage 요소 기반 청킹 ────────────────────────────────────
+
+# 조항이 시작되는 요소인지 판단한다.
+# Upstage는 제N조를 heading으로 분류하지 않고 paragraph로 주지만, 레이아웃 분석으로
+# 조항마다 요소를 나눠주기 때문에 "요소의 첫 줄이 제N조/제N관으로 시작하는가"만 보면 된다.
+# pymupdf 경로처럼 문서 전체를 줄 단위로 훑으며 제목을 추측할 필요가 없다.
+CLAUSE_START_RE = re.compile(r"^제\s*\d+\s*[조관장절]")
+
+# 특별약관 이름을 나타내는 줄. 예: "해외여행중 식중독 특별약관"
+#
+# Upstage의 category만으로는 구분되지 않는다. 같은 특약명이 heading1로 오기도 하고
+# paragraph로 오기도 하며, 반대로 "제2조(준용규정)"이 heading1로 오기도 한다.
+# 반면 "~특별약관/보통약관으로 끝나는 짧은 줄"은 약관 문서에서 안정적인 신호다.
+SECTION_NAME_RE = re.compile(r"^.{2,40}(특별약관|보통약관)$")
+
+
+def _section_name(element: dict) -> str | None:
+    text = element["text"].strip()
+    if not text:
+        return None
+    first = text.splitlines()[0].strip()
+    if CLAUSE_START_RE.match(first):
+        return None
+    return first if SECTION_NAME_RE.match(first) else None
+
+
+def _is_clause_start(element: dict) -> bool:
+    text = element["text"].strip()
+    if not text:
+        return False
+    if CLAUSE_START_RE.match(text.splitlines()[0]):
+        return True
+    # 표나 목록 중간에서 새 조항이 시작되는 일은 없으므로 heading 계열만 추가로 인정한다
+    return element["category"] in ("heading1", "heading2", "heading3")
+
+
+# 요소 묶음에서 조항 제목을 뽑는다. 첫 줄이 곧 제목이며,
+# pymupdf 경로에서 "제5조("가 잘려 "보험금을 지급하지 않는 사유)"로 남던 문제가 여기서 사라진다.
+def _title_from_elements(group: list[dict]) -> str:
+    for element in group:
+        text = element["text"].strip()
+        if text:
+            return text.splitlines()[0].strip()[:200]
+    return "문서 시작"
+
+
+# policy_chunks.source_content_type(NOT NULL)에 넣을 값.
+# 표가 섞여 있으면 표로 본다 - 표 여부가 이후 금액 파싱에서 의미가 있기 때문이다.
+def _content_type(group: list[dict]) -> str:
+    categories = {e["category"] for e in group}
+    if "table" in categories:
+        return "table"
+    if categories & {"heading1", "heading2", "heading3"}:
+        return "heading"
+    if categories == {"list"}:
+        return "list"
+    return "paragraph"
+
+
+# Upstage 요소를 조항 단위로 재조립한다.
+#
+# 요소를 그대로 청크로 쓰지 않는 이유: 한 조항이 문단·목록 여러 요소로 쪼개져 나온다
+# (실측 db_travel p5~10에서 요소 49개 대 조항 15개). 그대로 임베딩하면 조각이 너무 잘아
+# 검색 단위로 쓸 수 없다.
+def create_raw_chunks_from_elements(
+    elements: list[dict],
+    source_file: str,
+    mapping_entries: list[dict],
+) -> list[dict]:
+    # 머리말/꼬리말은 페이지마다 반복되는 노이즈라 제외한다
+    body = [e for e in elements if e["category"] not in ("header", "footer") and e["text"].strip()]
+    if not body:
+        return []
+
+    # 현재 어느 특별약관 안에 있는지 추적한다.
+    # 조항 제목("제1조(보험금의 지급사유)")은 특약마다 반복돼 변별력이 없어서,
+    # 임베딩할 때 상위 특약명을 붙여줘야 검색이 구분된다.
+    # (실측: 항공기 지연 질의가 제목만으로는 top-8 밖으로 밀렸다)
+    groups: list[list[dict]] = [[]]
+    paths: list[str] = [""]
+    current_path = ""
+
+    for element in body:
+        name = _section_name(element)
+        if name:
+            current_path = name
+
+        if _is_clause_start(element) and groups[-1]:
+            groups.append([])
+            paths.append(current_path)
+        elif not groups[-1]:
+            paths[-1] = current_path
+
+        groups[-1].append(element)
+
+    chunks = []
+    for index, (group, clause_path) in enumerate(zip(groups, paths), start=1):
+        text = "\n".join(e["text"].strip() for e in group if e["text"].strip()).strip()
+        if not text:
+            continue
+
+        title = _title_from_elements(group)
+        category_result = match_category(f"{clause_path}\n{title}", text, mapping_entries)
+
+        chunks.append(
+            {
+                "chunk_id": f"{Path(source_file).stem}_{index:04d}",
+                "source_file": source_file,
+                "page_start": min(e["page"] for e in group),
+                "page_end": max(e["page"] for e in group),
+                "section_title": title,
+                "clause_path": clause_path,
+                "source_content_type": _content_type(group),
+                "coverage_type": detect_coverage_type(title, text),
+                "text": text,
+                "char_count": len(text),
+                "matched_category": category_result["matched_category"],
+                "secondary_category": category_result["secondary_category"],
+                "matched_keyword": category_result["matched_keyword"],
+                "related_chunk_id": None,
+            }
+        )
+
+    return chunks
+
+
+# Upstage 요소로부터 최종 청크를 만든다. 재조립 이후 단계(병합/재판정/분할/면책 연결)는
+# pymupdf 경로와 완전히 동일한 도메인 로직을 그대로 태운다.
+def create_chunks_from_elements(
+    elements: list[dict],
+    source_file: str,
+    mapping_entries: list[dict],
+) -> list[dict]:
+    raw = create_raw_chunks_from_elements(elements, source_file, mapping_entries)
+    merged = merge_small_chunks(raw)
+    retyped = reclassify_coverage_types(merged)
+    split = split_large_chunks(retyped)
+    return link_exclusion_pairs(split)
 
 
 # raw 생성 -> 소형 병합 -> coverage_type 재판정 -> 대형 분할 -> 면책쌍 연결 순서로 실행하는 공개 API.

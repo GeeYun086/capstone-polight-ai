@@ -1,0 +1,37 @@
+# 로컬 개발용 PostgreSQL + pgvector.
+#
+# 운영 DB는 백엔드가 관리하는 AWS RDS다. 이건 로컬에서 policy_chunks INSERT와
+# 벡터 검색을 검증하기 위한 것으로, 백엔드 DB가 준비되면 .env의 DATABASE_URL만
+# 바꾸면 되고 애플리케이션 코드는 그대로다.
+#
+#   docker compose up -d
+#   docker compose down -v     # 데이터까지 삭제하고 초기화
+
+services:
+  postgres:
+    # pgvector가 미리 설치된 공식 이미지. 확장을 따로 빌드할 필요가 없다.
+    image: pgvector/pgvector:pg16
+    container_name: polight-postgres
+    environment:
+      POSTGRES_DB: polight
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      # 이미지에 ko_KR 로케일이 없어 LANG=ko_KR.utf8을 주면 initdb가 실패한다.
+      # 우리는 텍스트 정렬을 DB에 맡기지 않고(검색은 벡터·BM25로 한다) 인코딩만
+      # UTF-8이면 되므로 C 로케일로 초기화한다.
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    ports:
+      - "5432:5432"
+    volumes:
+      # 최초 기동 시 한 번만 실행된다. 파일명 순서대로 적용되므로
+      # 01_schema.sql -> 02_roles.sql 순으로 스키마가 만들어진 뒤 권한이 부여된다.
+      - ./docker/initdb:/docker-entrypoint-initdb.d:ro
+      - polight-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d polight"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  polight-pgdata:

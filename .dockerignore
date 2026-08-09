@@ -1,0 +1,27 @@
+# 이미지에 들어갈 필요가 없는 것들.
+# 특히 data/는 약관 PDF와 임베딩이라 수백 MB가 되고, 이미지에 넣으면 안 된다.
+
+.git
+.venv
+venv
+__pycache__
+*.py[cod]
+
+# 비밀값. 이미지에 구우면 안 되고 런타임 환경변수로 주입한다.
+.env
+
+# 원본/산출물 데이터
+data/
+!data/eval/
+
+# 로컬 개발용 DB 구성
+docker/
+docker-compose.yml
+
+tests/
+.pytest_cache
+.ipynb_checkpoints
+
+*.md
+*.txt
+!requirements.txt

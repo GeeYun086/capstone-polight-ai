@@ -17,11 +17,9 @@ def get_vector_repository() -> VectorRepository:
     settings = get_settings()
 
     if settings.database_url:
-        # TODO(pgvector): Spring이 policy_chunks 마이그레이션을 올리면 PgVectorRepository로 교체.
-        # 인터페이스가 같으므로 이 위쪽 코드(rag_service, analysis_service, 라우터)는 수정 불필요.
-        raise NotImplementedError(
-            "DATABASE_URL이 설정됐지만 PgVectorRepository가 아직 구현되지 않았습니다. "
-            "로컬 파일 저장소를 쓰려면 DATABASE_URL을 비워두세요."
-        )
+        # 인터페이스가 같으므로 이 분기만 바뀌고 rag_service·라우터는 수정하지 않는다.
+        from app.repositories.pg_repository import PgVectorRepository
+
+        return PgVectorRepository(settings.database_url)
 
     return FileVectorRepository()
