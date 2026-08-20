@@ -1,0 +1,177 @@
+{
+  "per_question": [
+    {
+      "id": "C01",
+      "type": "limit",
+      "gold_density": 1,
+      "rank": 6,
+      "phrasing": null,
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "C02",
+      "type": "coverage",
+      "gold_density": 1,
+      "rank": 1,
+      "phrasing": null,
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "C03",
+      "type": "coverage",
+      "gold_density": 2,
+      "rank": null,
+      "phrasing": null,
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "C04",
+      "type": "coverage",
+      "gold_density": 1,
+      "rank": 1,
+      "phrasing": null,
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "C05",
+      "type": "coverage",
+      "gold_density": 1,
+      "rank": 2,
+      "phrasing": null,
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "C06",
+      "type": "procedure",
+      "gold_density": 2,
+      "rank": 1,
+      "phrasing": null,
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "C07",
+      "type": "coverage",
+      "gold_density": 1,
+      "rank": 2,
+      "phrasing": null,
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "C08",
+      "type": "coverage",
+      "gold_density": 1,
+      "rank": 2,
+      "phrasing": null,
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "C09",
+      "type": "limit",
+      "gold_density": 1,
+      "rank": 1,
+      "phrasing": null,
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "C10",
+      "type": "coverage",
+      "gold_density": 1,
+      "rank": null,
+      "phrasing": null,
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "C11",
+      "type": "procedure",
+      "gold_density": 1,
+      "rank": 1,
+      "phrasing": null,
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "C12",
+      "type": "coverage",
+      "gold_density": 2,
+      "rank": 1,
+      "phrasing": null,
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "C13",
+      "type": "coverage",
+      "gold_density": 13,
+      "rank": 1,
+      "phrasing": null,
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "C14",
+      "type": "coverage",
+      "gold_density": 2,
+      "rank": 1,
+      "phrasing": null,
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "C15",
+      "type": "exclusion",
+      "gold_density": 2,
+      "rank": 2,
+      "phrasing": null,
+      "multiturn": false,
+      "fell_back": false
+    }
+  ],
+  "groups": {
+    "고유 조항 (gold 1~2개)": {
+      "n": 14,
+      "hit": 12,
+      "recall": 0.8571428571428571,
+      "mrr": 0.6547619047619048
+    },
+    "반복 조항 (gold 3개+)": {
+      "n": 1,
+      "hit": 1,
+      "recall": 1.0,
+      "mrr": 1.0
+    }
+  },
+  "total": 15,
+  "mode": {
+    "mmr": true,
+    "hybrid": true,
+    "top_k": 8
+  },
+  "recall@1": 0.5333333333333333,
+  "recall@3": 0.8,
+  "recall@5": 0.8,
+  "recall@8": 0.8666666666666667,
+  "mrr": 0.6777777777777777,
+  "missed": [
+    "C03",
+    "C10"
+  ],
+  "meta": {
+    "note": "캐롯 약관 기준 baseline / 증권 담보로 만든 15문항",
+    "questions": "data\\eval\\questions_carrot.json",
+    "chunks_dir": "C:\\Users\\HOME\\Documents\\GitHub\\polight-ai\\data\\chunks",
+    "embeddings_dir": "C:\\Users\\HOME\\Documents\\GitHub\\polight-ai\\data\\embeddings",
+    "policy_id": "carrot_travel_2025",
+    "embedding_provider": "upstage-1536",
+    "git_commit": "63e8df7"
+  }
+}

@@ -1,0 +1,1325 @@
+[
+  {
+    "title": "해외여행 실손의료비 (상해·질병 의료비)",
+    "subtitle": "해외여행 중 상해 또는 질병으로 발생한 의료비를 보상",
+    "category": "medical_expense",
+    "limitLabel": "보험가입금액 한도(증권 기재)",
+    "isCovered": true,
+    "coverageStatus": "PARTIAL",
+    "limitAmount": null,
+    "limitCurrency": null,
+    "conditions": "피보험자가 보험증권에 기재된 해외여행 중에 상해를 입거나 질병이 발생하여 해외의료기관에서 의사(치료받는 국가의 법에서 정한 병원 및 의사의 자격을 가진 자)의 치료를 받은 때에는 보험가입금액을 한도로 실제 부담한 의료비 전액을 보상하며, 국내 의료기관·약국 치료는 <붙임2>·<붙임3>에 따라 보상합니다. 치료 중 보험기간이 끝난 경우 보험기간 종료일부터 180일까지 보상합니다.",
+    "detailItems": [
+      {
+        "title": "상해의료비(해외)",
+        "subtitle": "해외의료기관에서 발생한 의료비 실비 보상",
+        "isCovered": true
+      },
+      {
+        "title": "상해의료비(국내) - 상해입원",
+        "subtitle": "국내 병원 입원치료",
+        "isCovered": true
+      },
+      {
+        "title": "상해의료비(국내) - 상해통원",
+        "subtitle": "국내 병원 통원·처방조제",
+        "isCovered": true
+      },
+      {
+        "title": "질병의료비(해외)",
+        "subtitle": "해외의료기관에서 발생한 의료비 실비 보상",
+        "isCovered": true
+      },
+      {
+        "title": "질병의료비(국내) - 질병입원",
+        "subtitle": "국내 병원 입원치료",
+        "isCovered": true
+      },
+      {
+        "title": "질병의료비(국내) - 질병통원",
+        "subtitle": "국내 병원 통원·처방조제",
+        "isCovered": true
+      },
+      {
+        "title": "비급여 도수치료·체외충격파치료·증식치료",
+        "subtitle": "별도 특별약관에서 보상",
+        "isCovered": true
+      },
+      {
+        "title": "비급여 주사료",
+        "subtitle": "별도 특별약관에서 보상",
+        "isCovered": true
+      },
+      {
+        "title": "비급여 자기공명영상진단(MRI/MRA)",
+        "subtitle": "별도 특별약관에서 보상",
+        "isCovered": true
+      }
+    ],
+    "subLimits": [
+      {
+        "label": "해외 척추지압술·침술 치료(상해)",
+        "value": "하나의 상해당 US $1,000.00 한도",
+        "limitAmount": 1000,
+        "limitCurrency": "USD",
+        "description": "치료받는 국가의 법에서 정한 병원 및 의사의 자격을 가진 자에 의하여 치료를 받은 경우에 한함"
+      },
+      {
+        "label": "해외 척추지압술·침술 치료(질병)",
+        "value": "하나의 질병당 US $1,000.00 한도",
+        "limitAmount": 1000,
+        "limitCurrency": "USD",
+        "description": "치료받는 국가의 법에서 정한 병원 및 의사의 자격을 가진 자에 의하여 치료를 받은 경우에 한함"
+      },
+      {
+        "label": "국내 상해입원 / 질병입원",
+        "value": "하나의 상해(질병)당 보험가입금액(5천만원 이내에서 계약시 계약자가 정한 금액) 한도",
+        "limitAmount": 50000000,
+        "limitCurrency": "KRW",
+        "description": "표준형: 본인부담금과 비급여 합계액의 80% 보상, 나머지 20%가 연간 200만원 초과 시 초과금액 보상 / 선택형Ⅱ: 급여 본인부담금 90% + 비급여 80%"
+      },
+      {
+        "label": "상급병실료 차액",
+        "value": "병실료 차액의 50%를 뺀 금액, 1일 평균금액 10만원 한도",
+        "limitAmount": 100000,
+        "limitCurrency": "KRW",
+        "description": null
+      },
+      {
+        "label": "국내 통원(외래·처방조제비)",
+        "value": "회(건)당 합산 30만원 이내에서 계약 시 계약자가 각각 정한 금액",
+        "limitAmount": 300000,
+        "limitCurrency": "KRW",
+        "description": "매년 계약해당일로부터 1년간 외래 방문 180회, 처방전 180건 한도. <표1> 항목별 공제금액 차감"
+      },
+      {
+        "label": "외래 공제금액(표준형)",
+        "value": "의원 1만원, 병원·종합병원 1만5천원, 상급종합병원 2만원과 보상대상의료비의 20% 중 큰 금액",
+        "limitAmount": null,
+        "limitCurrency": null,
+        "description": null
+      },
+      {
+        "label": "처방조제비 공제금액",
+        "value": "8천원과 보상대상 의료비의 20% 중 큰 금액",
+        "limitAmount": 8000,
+        "limitCurrency": "KRW",
+        "description": null
+      },
+      {
+        "label": "국민건강보험 미적용 시",
+        "value": "본인이 실제로 부담한 금액의 40% 보상",
+        "limitAmount": null,
+        "limitCurrency": null,
+        "description": "‘국민건강보험 요양급여의 기준에 관한 규칙’에 따라 보건복지부장관이 정한 급여 및 비급여의료비 항목만 해당"
+      },
+      {
+        "label": "비급여 도수치료·체외충격파치료·증식치료",
+        "value": "연간 350만원 이내에서 50회까지 보상 (공제금액: 1회당 2만원과 보상대상의료비의 30% 중 큰 금액)",
+        "limitAmount": 3500000,
+        "limitCurrency": "KRW",
+        "description": null
+      },
+      {
+        "label": "비급여 자기공명영상진단(MRI/MRA)",
+        "value": "연간 300만원 한도 (공제금액: 1회당 2만원과 보상대상의료비의 30% 중 큰 금액)",
+        "limitAmount": 3000000,
+        "limitCurrency": "KRW",
+        "description": null
+      },
+      {
+        "label": "보험기간 종료 후 보상",
+        "value": "보험기간 종료일부터 180일까지(통원은 180일 동안 외래 방문 90회, 처방조제비는 처방전 90건)",
+        "limitAmount": null,
+        "limitCurrency": null,
+        "description": null
+      }
+    ],
+    "requiredDocuments": [
+      {
+        "documentName": "청구서(회사 양식)",
+        "isMandatory": true
+      },
+      {
+        "documentName": "사고증명서(진료비계산서, 진료비세부내역서, 입원치료확인서, 의사처방전(처방조제비) 등)",
+        "isMandatory": true
+      },
+      {
+        "documentName": "신분증(주민등록증이나 운전면허증 등 본인임을 확인할 수 있는 사진이 붙은 정부기관에서 발행한 신분증, 본인이 아닌 경우에는 본인의 인감증명서 또는 본인서명사실확인서 포함)",
+        "isMandatory": true
+      },
+      {
+        "documentName": "그 밖에 보험수익자가 보험금 수령에 필요하여 제출하는 서류",
+        "isMandatory": false
+      }
+    ],
+    "exclusions": [
+      {
+        "title": "고의로 자신을 해친 경우",
+        "description": "심신상실 등으로 자유로운 의사결정을 할 수 없는 상태에서 자신을 해친 사실이 증명된 경우는 보상",
+        "sourceText": "1. 피보험자가 고의로 자신을 해친 경우. 다만, 피보험자가 심신상실 등으로 자 유로운 의사결정을 할 수 없는 상태에서 자신을 해친 사실이 증명된 경우에는 보상합니다.",
+        "severity": "HIGH"
+      },
+      {
+        "title": "보험수익자 또는 계약자가 고의로 피보험자를 해친 경우",
+        "description": null,
+        "sourceText": "2. 보험수익자가 고의로 피보험자를 해친 경우. 다만, 그 보험수익자가 보험금 의 일부 보험수익자인 경우에는 다른 보험수익자에 대한 보험금은 지급합니다. 3. 계약자가 고의로 피보험자를 해친 경우",
+        "severity": "HIGH"
+      },
+      {
+        "title": "임신, 출산, 산후기 치료",
+        "description": "회사가 보상하는 상해로 인한 경우에는 보상",
+        "sourceText": "4. 피보험자가 임신, 출산(제왕절개를 포함합니다), 산후기로 치료한 경우. 다만 회사가 보상하는 상해로 인한 경우에는 보상합니다.",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "전쟁, 외국의 무력행사, 혁명, 내란, 사변, 폭동",
+        "description": null,
+        "sourceText": "5. 전쟁, 외국의 무력행사, 혁명, 내란, 사변, 폭동으로 인한 경우",
+        "severity": "HIGH"
+      },
+      {
+        "title": "의사 지시 불이행 및 자의적 입원",
+        "description": null,
+        "sourceText": "6. 피보험자가 정당한 이유없이 입원 또는 통원기간 중 의사의 지시를 따르지 않아 발생한 의료비와 의사가 통원치료가 가능하다고 인정함에도 피보험자 본 인이 자의적으로 입원하여 발생한 입원의료비",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "직업·직무·동호회 활동 목적의 위험한 활동 중 상해",
+        "description": "전문등반, 글라이더 조종, 스카이다이빙, 스쿠버다이빙, 행글라이딩, 수상보트, 패러글라이딩 등",
+        "sourceText": "② 회사는 다른 약정이 없으면 피보험자가 직업, 직무 또는 동호회 활동 목적으 로 한 다음의 어느 하나에 해당하는 행위로 인하여 생긴 상해에 대해서는 보상 하지 않습니다. 1. 전문등반(전문적인 등산용구를 사용하여 암벽 또는 빙벽을 오르내리거나 특 수한 기술, 경험, 사전 훈련이 필요한 등반을 말합니다), 글라이더 조종, 스카이 다이빙, 스쿠버다이빙, 행글라이딩, 수상보트, 패러글라이딩",
+        "severity": "HIGH"
+      },
+      {
+        "title": "모터보트·자동차·오토바이 경기, 시범, 행사 또는 시운전",
+        "description": "공용도로에서 시운전 중 발생한 상해는 보상",
+        "sourceText": "2. 모터보트, 자동차 또는 오토바이에 의한 경기, 시범, 행사(이를 위한 연습을 포함합니다) 또는 시운전(다만, 공용도로에서 시운전을 하는 동안 발생한 상해는 보상합니다)",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "선박탑승을 직무로 하는 사람의 직무상 선박탑승",
+        "description": null,
+        "sourceText": "3. 선박승무원, 어부, 사공, 그밖에 선박에 탑승하는 것을 직무로 하는 사람의 직무상 선박탑승",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "건강검진, 예방접종, 인공유산 비용",
+        "description": "검사결과 이상 소견에 따른 추가 의료비용 및 보상하는 치료 목적인 경우는 보상",
+        "sourceText": "1. 건강검진(단, 검사결과 이상 소견에 따라 건강검진센터 등에서 발생한 추가 의료비용은 보상합니다), 예방접종, 인공유산에 든 비용. 다만, 회사가 보상하는 상해 치료를 목적으로 하는 경우에는 보상합니다.",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "영양제·비타민제·호르몬 투여, 불임 관련 비용 등",
+        "description": null,
+        "sourceText": "2. 영양제, 비타민제, 호르몬 투여, 보신용 투약, 친자 확인을 위한 진단, 불임 검사, 불임수술, 불임복원술, 보조생식술(체내, 체외 인공수정을 포함합니다), 성 장촉진, 의약외품과 관련하여 소요된 비용. 다만, 회사가 보상하는 상해 치료를 목적으로 하는 경우에는 보상합니다.",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "진료재료의 구입 및 대체비용",
+        "description": "인공장기 등 신체에 이식되어 기능을 대신하는 경우는 보상",
+        "sourceText": "3. 의치, 의수족, 의안, 안경, 콘택트렌즈, 보청기, 목발, 팔걸이(Arm Sling), 보조 기 등 진료재료의 구입 및 대체비용. 다만, 인공장기 등 신체에 이식되어 그 기 능을 대신하는 경우에는 보상합니다.",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "외모개선 목적의 치료",
+        "description": null,
+        "sourceText": "4. 외모개선 목적의 치료로 인하여 발생한 의료비",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "진료와 무관한 제비용 및 간병비",
+        "description": null,
+        "sourceText": "5. 진료와 무관한 제비용(TV시청료, 전화료, 각종 증명료 등을 말합니다), 의사 의 임상적 소견과 관련이 없는 검사비용, 간병비",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "정신 및 행동장애 등 특정 질병(질병의료비)",
+        "description": "일부 코드 관련 요양급여 해당 의료비는 보상",
+        "sourceText": "1. 정신 및 행동장애(F04～F99) (다만, F04～F09, F20～F29, F30～F39, F40～F48, F51, F90～F98과 관련한 치 료에서 발생한 「국민건강보험법」에 따른 요양급여에 해당하는 의료비는 보상합 니다) 2. 여성생식기의 비염증성 장애로 인한 습관성 유산, 불임 및 인공수정관련 합 병증(N96～N98) 3. 피보험자가 임신, 출산(제왕절개를 포함합니다), 산후기로 치료한 경우(O0 0～O99) 4. 선천성 뇌질환(Q00～Q04) 5. 비만(E66) 6. 요실금(N39.3, N39.4, R32)",
+        "severity": "HIGH"
+      },
+      {
+        "title": "HIV 감염으로 인한 치료비(질병의료비)",
+        "description": "의료인의 진료상 또는 치료중 혈액에 의한 HIV감염이 객관적으로 확인되는 경우는 제외",
+        "sourceText": "7. 인간면역결핍바이러스(HIV)감염으로 인한 치료비(다만, 의료법에서 정한 의 료인의 진료상 또는 치료중 혈액에 의한 HIV감염은 해당진료기록을 통해 객관 적으로 확인되는 경우는 제외합니다)",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "치아보철 등 치과 관련 의료비(질병의료비)",
+        "description": null,
+        "sourceText": "8. 치아보철, 보존, 금관, 틀니, 의치 및 임플란트로 인한 의료비",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "기본형에서 제외되는 국내 비급여 항목",
+        "description": "도수치료·체외충격파·증식치료, 비급여 주사료, MRI/MRA 등은 별도 특별약관에서 보상",
+        "sourceText": "1. 도수치료·체외충격파치료·증식치료로 인하여 발생한 비급여의료비\n2. 비급여 주사료[다만, 항암제, 항생제(항진균제 포함), 희귀의약품은 보상합니다]\n3. 자기공명영상진단(MRI/MRA)으로 인하여 발생한 비급여의료비(조영제, 판독료를 포함합니다)\n4. 제1호, 제2호, 제3호와 관련하여 자동차보험(공제를 포함합니다) 또는 산재보험에서 발생한 본인부\n담의료비",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "국내 치료 중 본인부담금 상한제 환급 가능 금액 등",
+        "description": null,
+        "sourceText": "2. 국민건강보험법에 따른 요양급여 중 본인부담금의 경우 국민건강보험 관련 법령에 의 해 국민건강보험공단으로부터 사전 또는 사후 환급이 가능한 금액(본인부담금 상한제)",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "자동차보험 또는 산재보험에서 보상받는 의료비(국내)",
+        "description": "본인부담의료비는 보상",
+        "sourceText": "9. 자동차보험(공제를 포함합니다) 또는 산재보험에서 보상받는 의료비. 다만, 본인부담의 료비는 제3조(보장종목별 보상내용) (1)상해입원 제1항, 제2항 및 제4항부터 제6항에 따라 보상합니다.",
+        "severity": "MEDIUM"
+      }
+    ],
+    "sources": [
+      {
+        "chunkId": "db_travel_0060",
+        "sourceRole": "COVERAGE",
+        "quoteText": "제1조(보장종목) 회사는 기본형 해외여행 실손의료보험상품을 상해의료비, 질병의료비 등 2가지 이내의\n보장종목으로 구성합니다."
+      },
+      {
+        "chunkId": "db_travel_0063",
+        "sourceRole": "COVERAGE",
+        "quoteText": "① 회사는 피보험자가 보험증권에 기재된 해외여행 중에 상해를 입고, 이로 인 해 해외의료기관에서 의사(치료받는 국가의 법에서 정한 병원 및 의사의 자격을 가진 자에 한함)의 치료를 받은 때에는 보험가입금액을 한도로 피보험자가 실제 부담한 의료비 전액을 보상합니다."
+      },
+      {
+        "chunkId": "db_travel_0063",
+        "sourceRole": "LIMIT",
+        "quoteText": "② 제1항에도 불구하고 척추지압술(Chiropractic, 추나요법 등)이나 침술(부항, 뜸 포함) 치료로 인한 의료비는 치료받는 국가의 법에서 정한 병원 및 의사의 자격 을 가진 자에 의하여 치료를 받은 경우에 한하며, 하나의 질병에 대하여 US $ 1,000.00 한도로 보상합니다."
+      },
+      {
+        "chunkId": "db_travel_0115",
+        "sourceRole": "LIMIT",
+        "quoteText": "① 회사는 피보험자가 상해로 인하여 병원에 입원하여 치료를 받은 경우에는 입원의료비 를 다음과 같이 하나의 상해당 보험가입금액(5천만원 이내에서 계약시 계약자가 정한 금 액을 말합니다)의 한도 내에서 보상합니다."
+      },
+      {
+        "chunkId": "db_travel_0115_3",
+        "sourceRole": "LIMIT",
+        "quoteText": "주2) 외래 및 처방조제비는 회(건)당 합산하여 30만원이내에서 계약 시 계약자가 각각 정 한 금액으로 합니다."
+      },
+      {
+        "chunkId": "db_travel_0116",
+        "sourceRole": "LIMIT",
+        "quoteText": "① 회사는 피보험자가 질병으로 인하여 병원에 입원하여 치료를 받은 경우에는 입원의료 비를 다음과 같이 하나의 질병당 보험가입금액(5천만원 이내에서 계약시 계약자가 정한 금액을 말합니다)의 한도 내에서 보상합니다."
+      },
+      {
+        "chunkId": "db_travel_0121",
+        "sourceRole": "LIMIT",
+        "quoteText": "보상한도 | 계약일 또는 매년 계약해당일부터 1년 단위로 350만원 이내에서 50회주)까지 보상"
+      },
+      {
+        "chunkId": "db_travel_0133",
+        "sourceRole": "LIMIT",
+        "quoteText": "보상한도 | 계약일 또는 매년 계약해당일부터 1년 단위로 연간 300만원 한도 내에서 보상"
+      },
+      {
+        "chunkId": "db_travel_0066",
+        "sourceRole": "EXCLUSION",
+        "quoteText": "① 회사는 다음의 사유로 인하여 생긴 의료비는 보상하지 않습니다."
+      },
+      {
+        "chunkId": "db_travel_0066_2",
+        "sourceRole": "EXCLUSION",
+        "quoteText": "② 회사는 한국표준질병사인분류에 있어서 아래의 의료비에 대하여는 보상하지 않습니다."
+      },
+      {
+        "chunkId": "db_travel_0066_3",
+        "sourceRole": "EXCLUSION",
+        "quoteText": "8. 치아보철, 보존, 금관, 틀니, 의치 및 임플란트로 인한 의료비"
+      },
+      {
+        "chunkId": "db_travel_0068",
+        "sourceRole": "EXCLUSION",
+        "quoteText": "제4조의2(특별약관에서 보상하는 사항) ① 제3조 및 제4조에도 불구하고 다음 각 호에 해당하는 국내\n상해의료비 및 국내 질병의료비는 기본형 실손의료비 특별약관에서 보상하지 않습니다."
+      },
+      {
+        "chunkId": "db_travel_0117_2",
+        "sourceRole": "EXCLUSION",
+        "quoteText": "9. 자동차보험(공제를 포함합니다) 또는 산재보험에서 보상받는 의료비. 다만, 본인부담의 료비는 제3조(보장종목별 보상내용) (1)상해입원 제1항, 제2항 및 제4항부터 제6항에 따라 보상합니다."
+      },
+      {
+        "chunkId": "db_travel_0069",
+        "sourceRole": "DOCUMENT",
+        "quoteText": "제6조(보험금의 청구) ① 보험수익자는 다음의 서류를 제출하고 보험금을 청구하여야 합니다.\n1. 청구서(회사 양식)\n2. 사고증명서(진료비계산서, 진료비세부내역서, 입원치료확인서, 의사처방전(처방조제비) 등)"
+      }
+    ]
+  },
+  {
+    "title": "해외여행중 항공기 및 수하물 지연비용",
+    "subtitle": "항공편 지연·결항 및 수하물 지연·손실 시 발생한 실제 비용 보상",
+    "category": "flight_delay",
+    "limitLabel": null,
+    "isCovered": true,
+    "coverageStatus": "COVERED",
+    "limitAmount": null,
+    "limitCurrency": "KRW",
+    "conditions": "연결항공편 결항 후 예정시간 4시간 내 대체 항공운송수단이 제공되지 못한 경우, 항공편이 4시간 이상 지연·취소되거나 과적으로 탑승이 거부되어 4시간 내 대체수단이 제공되지 못한 경우, 수하물이 손실되거나 항공편 예정 도착시간으로부터 6시간 이내 도착하지 못한 경우 보험가입금액을 한도로 실제 비용 지급",
+    "detailItems": [
+      {
+        "title": "연결항공편 결항 후 4시간 내 대체 항공운송수단 미제공",
+        "subtitle": null,
+        "isCovered": true
+      },
+      {
+        "title": "항공편 4시간 이상 지연·취소 또는 과적에 의한 탑승거부 후 4시간 내 대체수단 미제공",
+        "subtitle": null,
+        "isCovered": true
+      },
+      {
+        "title": "수하물 손실 또는 예정 도착시간으로부터 6시간 이내 미도착",
+        "subtitle": null,
+        "isCovered": true
+      },
+      {
+        "title": "식사, 간식 또는 전화 통화 비용",
+        "subtitle": "항공편 결항·지연의 경우",
+        "isCovered": true
+      },
+      {
+        "title": "숙박비, 숙박시설 교통비, 비상 의복 및 필수품 구입비용",
+        "subtitle": "숙박이 필요한 경우에 한함",
+        "isCovered": true
+      },
+      {
+        "title": "도착 후 120시간 내 생필품 및 의류 긴급구입 비용",
+        "subtitle": "등록된 수하물 수령 이후 발생한 비용은 제외",
+        "isCovered": true
+      }
+    ],
+    "subLimits": [
+      {
+        "label": "피보험자 1인당",
+        "value": "보험가입금액 한도",
+        "limitAmount": null,
+        "limitCurrency": null,
+        "description": "회사는 피보험자 1인당 이 특별약관 보험가입금액을 한도로 보험금을 지급합니다."
+      },
+      {
+        "label": "1사고당 총보험금",
+        "value": "보험가입금액의 200% 한도",
+        "limitAmount": null,
+        "limitCurrency": null,
+        "description": "회사가 지급하는 1사고당 총보험금(가족에 대한 보험금을 포함합니다)은 이 특별약관 보험가입금액의 200%를 한도로 합니다."
+      },
+      {
+        "label": "수하물 관련 비용 인정기간",
+        "value": "예정 도착지 도착 후 120시간 내",
+        "limitAmount": null,
+        "limitCurrency": null,
+        "description": "단, 120시간 내에 발생한 비용 중 등록된 수하물을 수령한 이후 발생한 비용은 보상하지 않습니다."
+      }
+    ],
+    "requiredDocuments": [
+      {
+        "documentName": "항공사로부터 발급받은 재산손실보고서(서명, 일자 포함)",
+        "isMandatory": true
+      },
+      {
+        "documentName": "피보험자의 항공사 탑승권 사본",
+        "isMandatory": true
+      },
+      {
+        "documentName": "결항된 항공편, 일자, 항공편의 시간과 추가 발생한 숙박 및 식사비용에 관련된 세부자료",
+        "isMandatory": true
+      },
+      {
+        "documentName": "손실 또는 불편발생 사실여부 확인에 도움이 될 수 있는 추가정보",
+        "isMandatory": false
+      },
+      {
+        "documentName": "손실발생 경위 세부사항(손실 발생일자, 피보험자 성명, 출발·도착 지점과 시간, 항공사 명칭과 항공편 번호, 손실발생관련 상황 세부정보)",
+        "isMandatory": true
+      },
+      {
+        "documentName": "탑승권 또는 수하물 접수증 사본",
+        "isMandatory": true
+      },
+      {
+        "documentName": "발생 비용에 대한 완전한 세부정보와 보상이 요구되는 영수증 원본",
+        "isMandatory": true
+      }
+    ],
+    "exclusions": [
+      {
+        "title": "전쟁 또는 이에 따르는 행위",
+        "description": null,
+        "sourceText": "1. 명시적 또는 실질적 형태의 정부의 육, 해, 공 군사력에 의한 선포 또는 비선포된 전쟁 또는 이에\n따르는 행위",
+        "severity": "HIGH"
+      },
+      {
+        "title": "피보험자 또는 수혜자의 불법적인 행동",
+        "description": null,
+        "sourceText": "2. 피보험자 또는 그 수혜자들에 의하거나 또는 이들을 위해 행해진 불법적인 행동",
+        "severity": "HIGH"
+      },
+      {
+        "title": "교통수단의 조작자 또는 조종자로 종사 중 발생한 손실",
+        "description": null,
+        "sourceText": "3. 교통수단의 조작자 또는 조종자로 종사하는 상황에서 발생한 손실",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "세관 또는 정부기관에 의한 압수·보관조치",
+        "description": null,
+        "sourceText": "4. 세관 또는 여타 정부기관에 의한 압수 또는 보관조치",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "수하물 회수를 위한 합리적 노력 미이행",
+        "description": null,
+        "sourceText": "5. 피보험자가 수하물을 회수하는 데에 필요한 합리적인 노력을 행하지 않은 경우",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "항공사 등에 통보 및 재산손실보고 미이행",
+        "description": null,
+        "sourceText": "6. 목적지에서 수하물 손실에 관련된 항공사 또는 관련 기관에 통보하고 재산손실보고를 취하지 않\n은 경우",
+        "severity": "HIGH"
+      },
+      {
+        "title": "항공사 또는 그 지정자·대리인에 대한 수하물 포기",
+        "description": null,
+        "sourceText": "7. 항공사 또는 그 지정자나 대리인에 대해 수하물을 포기하는 경우",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "수하물 수령 이후 발생 비용",
+        "description": null,
+        "sourceText": "(단, 120시간 내에 발생한 비용 중 등록된 수하물을 수령한 이후 발생한\n비용은 보상하지 않습니다.)",
+        "severity": "MEDIUM"
+      }
+    ],
+    "sources": [
+      {
+        "chunkId": "db_travel_0221",
+        "sourceRole": "COVERAGE",
+        "quoteText": "제1조(보험금의 지급사유) ①회사는 피보험자가 아래에 정한 사유로 인하여 손해를 입었을 경우에는 이\n특별약관의 보험가입금액을 한도로 실제 비용을 피보험자에게 지급하여 드립니다.\n1. 연결항공편이 결항되었으며 실제 예정시간의 4시간 내에 피보험자에게 대체적인 항공운송수단이\n제공되지 못할 경우\n2. 항공편이 4시간이상 지연, 취소되거나 또는 피보험자가 과적에 의해 탑승이 거부되어 예정시간으\n로부터 4시간 내에 대체적인 수단이 제공되지 못하는 경우\n3. 피보험자의 수하물이 손실되거나 항공편의 예정된 도착시간으로부터 6시간이내에 도착하지 못하\n는 경우(수하물의 손실이라 함은 수하물을 잃어버리는 경우를 말합니다.)"
+      },
+      {
+        "chunkId": "db_travel_0223",
+        "sourceRole": "COVERAGE",
+        "quoteText": "②회사가 보상하는 손해는 아래와 같습니다.\n1. 제1항 제1호 또는 제2호의 경우 회사는 출발 또는 결항된 항공편에 대해 발생한 합리적으로 필요\n하며 유효한 아래의 비용\n가. 식사, 간식 또는 전화 통화\n나. 숙박비, 숙박시설에 대한 교통비, 수하물이 다른 항공편으로 출발한 경우 비상 의복 및 필수품의\n구입비용. 다만, 숙박이 필요한 경우에 한합니다.\n2. 제1항 제3호의 경우 피보험자에 대하여 예정된 도착지에 도착 후 120시간 내에 발생한 생필품 및\n의류의 긴급구입을 위한 비용 (단, 120시간 내에 발생한 비용 중 등록된 수하물을 수령한 이후 발생한\n비용은 보상하지 않습니다.)"
+      },
+      {
+        "chunkId": "db_travel_0224",
+        "sourceRole": "EXCLUSION",
+        "quoteText": "제2조(보험금을 지급하지 않는 사유) 회사는 다음 중 어느 한 가지의 경우에 의하여 보험금 지급사유가\n발생한 때에는 보험금을 지급하지 않습니다."
+      },
+      {
+        "chunkId": "db_travel_0225",
+        "sourceRole": "DOCUMENT",
+        "quoteText": "제3조(보험금의 청구) ① 계약자, 피보험자는 청구의 원인이 되는 사건 발생 후 30일 이내에 다음의 서\n류를 제출하고 보험금을 청구하여야 합니다."
+      },
+      {
+        "chunkId": "db_travel_0227",
+        "sourceRole": "LIMIT",
+        "quoteText": "제4조(보험금의 지급한도) 회사는 피보험자 1인당 이 특별약관 보험가입금액을 한도로 보험금을 지급합\n니다. 단, 회사가 지급하는 1사고당 총보험금(가족에 대한 보험금을 포함합니다)은 이 특별약관 보험가입\n금액의 200%를 한도로 합니다."
+      }
+    ]
+  },
+  {
+    "title": "해외여행 중 휴대품 손해 (분실 제외)",
+    "subtitle": "해외여행 중 우연한 사고로 휴대품에 생긴 손해를 보상 (분실은 제외)",
+    "category": "baggage",
+    "limitLabel": "1개 또는 1조·1쌍당 20만원 한도 (자기부담금 공제)",
+    "isCovered": true,
+    "coverageStatus": "PARTIAL",
+    "limitAmount": null,
+    "limitCurrency": "KRW",
+    "conditions": "피보험자가 해외여행 중에 휴대하는 피보험자 소유·사용·관리하는 휴대품에 한하며, 해외여행 중에 생긴 우연한 사고로 보험의 목적에 입은 손해를 보상합니다. 지급보험금은 손해액에서 1회의 사고에 대하여 보험증권에 기재된 자기부담금을 공제한 금액입니다. 분실은 보상하지 않습니다.",
+    "detailItems": [
+      {
+        "title": "해외여행 중 우연한 사고로 인한 휴대품 손해",
+        "subtitle": "보험의 목적에 입은 손해를 보상",
+        "isCovered": true
+      },
+      {
+        "title": "수선 시 복원비용",
+        "subtitle": "손해발생 직전 상태로 복원하는데 필요한 비용을 손해액으로 함",
+        "isCovered": true
+      },
+      {
+        "title": "손해방지비용",
+        "subtitle": "지급보험금과 합한 금액이 보험가입금액을 초과하더라도 지급",
+        "isCovered": true
+      },
+      {
+        "title": "보험의 목적의 방치 또는 분실",
+        "subtitle": null,
+        "isCovered": false
+      },
+      {
+        "title": "통화, 유가증권, 인지, 우표, 신용카드, 쿠폰, 항공권, 여권 등",
+        "subtitle": "보험의 목적에 포함되지 않음",
+        "isCovered": false
+      },
+      {
+        "title": "의치, 의수족, 시력교정용 안경, 콘택트렌즈, 보청기 등 신체보조장구",
+        "subtitle": "보험의 목적에 포함되지 않음",
+        "isCovered": false
+      }
+    ],
+    "subLimits": [
+      {
+        "label": "1개 또는 1조, 1쌍당 한도",
+        "value": "200,000원",
+        "limitAmount": 200000,
+        "limitCurrency": "KRW",
+        "description": "보험의 목적의 1개 또는 1조, 1쌍에 대한 지급할 보험금은 200,000원을 한도로 합니다."
+      },
+      {
+        "label": "자기부담금",
+        "value": "보험증권에 기재된 금액 공제",
+        "limitAmount": null,
+        "limitCurrency": null,
+        "description": "1회의 사고에 대하여 보험증권에 기재된 자기부담금을 공제한 금액으로 합니다."
+      }
+    ],
+    "requiredDocuments": [],
+    "exclusions": [
+      {
+        "title": "계약자·피보험자·수익자의 고의 또는 중대한 과실",
+        "description": null,
+        "sourceText": "1. 계약자나 피보험자 또는 수익자의 고의 또는 중대한 과실",
+        "severity": "HIGH"
+      },
+      {
+        "title": "동행 친족·고용인이 고의로 일으킨 손해",
+        "description": null,
+        "sourceText": "2. 피보험자에게 보험금이 지급되도록 하기 위하여 피보험자와 여행을 같이 하는 친족 또는 고용인이\n고의로 일으킨 손해",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "국가 또는 공공기관의 공권력행사",
+        "description": null,
+        "sourceText": "3. 압류, 징발, 몰수, 파괴 등 국가 또는 공공기관의 공권력행사. 다만, 화재, 소방, 피난에 필요한 처리\n로 된 경우를 제외합니다.",
+        "severity": "LOW"
+      },
+      {
+        "title": "보험의 목적의 흠으로 생긴 손해",
+        "description": null,
+        "sourceText": "4. 보험의 목적의 흠으로 생긴 손해. 그러나 계약자, 피보험자 또는 이들을 대신하여 보험의 목적을 관\n리하는 자가 상당한 주의를 하였음에도 불구하고 발견하지 못한 흠으로 인한 손해는 보상합니다.",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "자연소모·녹·곰팡이·변질·변색 등",
+        "description": null,
+        "sourceText": "5. 보험의 목적의 자연소모, 녹, 곰팡이, 변질, 변색, 쥐 또는 벌레로 인한 손해",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "기능에 지장 없는 외관상의 손해",
+        "description": null,
+        "sourceText": "6. 외관상의 손해로, 물품 본래의 기능에는 지장이 없는 손해",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "보험의 목적인 액체의 유출",
+        "description": null,
+        "sourceText": "7. 보험의 목적인 액체의 유출. 다만, 그 결과로 다른 보험의 목적에 생긴 손해는 보상합니다.",
+        "severity": "LOW"
+      },
+      {
+        "title": "보험의 목적의 방치 또는 분실",
+        "description": null,
+        "sourceText": "8. 보험의 목적의 방치 또는 분실",
+        "severity": "HIGH"
+      },
+      {
+        "title": "전쟁, 외국의 무력행사, 혁명, 내란, 사변, 폭동",
+        "description": null,
+        "sourceText": "9. 전쟁, 외국의 무력행사, 혁명, 내란, 사변, 폭동",
+        "severity": "HIGH"
+      },
+      {
+        "title": "지진, 분화, 해일 등 천재지변",
+        "description": null,
+        "sourceText": "10. 지진, 분화, 해일 또는 이와 비슷한 천재지변",
+        "severity": "HIGH"
+      },
+      {
+        "title": "핵연료 물질 관련 사고",
+        "description": null,
+        "sourceText": "11. 핵연료 물질 또는 핵연료 물질에 의하여 오염된 물질의 방사성, 폭발성 또는 그밖의 유해한 특성에\n의한 사고",
+        "severity": "HIGH"
+      },
+      {
+        "title": "방사선 조사 또는 방사능 오염",
+        "description": null,
+        "sourceText": "12. 제11호 이외의 방사선을 쬐는 것 또는 방사능 오염",
+        "severity": "HIGH"
+      },
+      {
+        "title": "보험의 목적에서 제외되는 물건",
+        "description": "통화·유가증권·항공권·여권, 원고·설계서·소프트웨어, 선박 또는 자동차, 산악등반·탐험 용구, 동식물, 신체보조장구 등",
+        "sourceText": "1. 통화, 유가증권, 인지, 우표, 신용카드, 쿠폰, 항공권, 여권 등 이와 비슷한 것\n2. 원고, 설계서, 도안, 물건의 원본, 모형, 증서, 장부, 금형(쇠틀), 목형(나무틀), 소프트웨어 및 이와 비\n슷한 것\n3. 선박 또는 자동차(자동3륜차, 자동2륜차 포함)\n4. 산악등반이나 탐험 등에 필요한 용구\n5. 동식물\n6. 의치, 의수족, 시력교정용 안경, 콘택트렌즈, 보청기 및 이와 유사한 신체보조장구\n7. 기타 보험증권에 특별히 기재된 것",
+        "severity": "HIGH"
+      }
+    ],
+    "sources": [
+      {
+        "chunkId": "db_travel_0181",
+        "sourceRole": "COVERAGE",
+        "quoteText": "제1조(보험의 목적의 범위) ① 이 보험의 목적은 피보험자가 보통약관 제3조(보험금의 지급사유)의 해외\n여행 중에 휴대하는 피보험자 소유․사용․관리하는 휴대품에 한합니다."
+      },
+      {
+        "chunkId": "db_travel_0181",
+        "sourceRole": "EXCLUSION",
+        "quoteText": "② 아래의 물건은 보험의 목적에 포함되지 않습니다.\n1. 통화, 유가증권, 인지, 우표, 신용카드, 쿠폰, 항공권, 여권 등 이와 비슷한 것"
+      },
+      {
+        "chunkId": "db_travel_0184",
+        "sourceRole": "COVERAGE",
+        "quoteText": "제2조(보험금의 지급사유) 회사는 피보험자가 보통약관 제3조(보험금의 지급사유)의 해외여행 중에 생긴\n우연한 사고에 의하여 보험의 목적에 입은 손해를 이 특별약관에 따라 보상합니다."
+      },
+      {
+        "chunkId": "db_travel_0184",
+        "sourceRole": "LIMIT",
+        "quoteText": "④ 보험의 목적의 1개 또는 1조, 1쌍에 대한 제1항의 지급할 보험금은 200,000원을 한도로 합니다."
+      },
+      {
+        "chunkId": "db_travel_0186",
+        "sourceRole": "EXCLUSION",
+        "quoteText": "제4조(보험금을 지급하지 않는 사유) 회사는 다음 중 어느 한 가지의 경우에 의하여 보험금 지급사유가\n발생한 때에는 보험금을 지급하지 않습니다."
+      },
+      {
+        "chunkId": "db_travel_0188",
+        "sourceRole": "COVERAGE",
+        "quoteText": "③ 회사는 제3조(보험금 지급에 관한 세부규정)의 지급보험금에 제2항의 손해방지비용을 합한 금액이\n보험가입금액을 초과하더라도 이를 지급합니다."
+      }
+    ]
+  },
+  {
+    "title": "해외여행 중 중대사고 구조송환비용",
+    "subtitle": "해외여행 중 조난·중대사고 시 수색구조 및 이송·송환에 드는 비용 보상",
+    "category": "emergency_transport",
+    "limitLabel": null,
+    "isCovered": true,
+    "coverageStatus": "COVERED",
+    "limitAmount": null,
+    "limitCurrency": "KRW",
+    "conditions": "해외여행 중 ①탑승 항공기·선박의 행방불명·조난 또는 산악등반 중 조난, ②급격하고도 우연한 외래의 사고로 긴급수색구조 등이 필요한 상태가 경찰 등 공공기관에 의해 확인된 경우, ③상해의 직접결과로 사망 또는 14일 이상 계속 입원한 경우, ④질병을 직접 원인으로 해외여행 중 사망 또는 14일 이상 계속 입원한 경우(입원은 해외여행 중 의사가 치료를 개시한 질병에 한함)에 계약자·피보험자 또는 법정상속인이 부담하는 비용을 보상. 비용 중 정당하다고 인정된 부분에 대해서만 보상하며 보험기간을 통하여 이 특별약관의 보험가입금액을 한도로 함",
+    "detailItems": [
+      {
+        "title": "수색구조비용",
+        "subtitle": "조난당한 피보험자를 수색·구조 또는 이송하는 활동에 종사한 사람의 청구에 의하여 지급한 비용",
+        "isCovered": true
+      },
+      {
+        "title": "항공운임 등 교통비",
+        "subtitle": "구원자의 현지 왕복교통비, 2명분 한도",
+        "isCovered": true
+      },
+      {
+        "title": "숙박비",
+        "subtitle": "현지에서의 구원자 숙박비, 구원자 2명분·1명당 14박분 한도",
+        "isCovered": true
+      },
+      {
+        "title": "이송비용",
+        "subtitle": "사망 시 유해 이송비용 또는 치료 계속 중인 피보험자의 주소지 이송비용(피보험자·의사·간호사 호송비)",
+        "isCovered": true
+      },
+      {
+        "title": "제잡비",
+        "subtitle": "구원자의 출입국 절차 비용 및 현지 교통비·통신비·유해처리비 등, 10만원 한도",
+        "isCovered": true
+      }
+    ],
+    "subLimits": [
+      {
+        "label": "항공운임 등 교통비",
+        "value": "구원자 2명분 한도",
+        "limitAmount": null,
+        "limitCurrency": null,
+        "description": "피보험자의 수색, 간호 또는 사고처리를 위한 구원자의 현지 왕복교통비"
+      },
+      {
+        "label": "숙박비",
+        "value": "구원자 2명분, 1명당 14박분 한도",
+        "limitAmount": null,
+        "limitCurrency": null,
+        "description": "현지에서의 구원자의 숙박비"
+      },
+      {
+        "label": "제잡비",
+        "value": "10만원 한도",
+        "limitAmount": 100000,
+        "limitCurrency": "KRW",
+        "description": "구원자의 출입국 절차에 필요한 비용 및 현지 지출 교통비·통신비·피보험자 유해처리비 등"
+      },
+      {
+        "label": "이송비용 공제",
+        "value": "피보험자 본인 교통비·운임 해당액 공제",
+        "limitAmount": null,
+        "limitCurrency": null,
+        "description": "당해 교통수단의 일반실 기준에 해당하는 피보험자 본인의 교통비 또는 운임 해당액은 공제"
+      },
+      {
+        "label": "총 보상한도액",
+        "value": "이 특별약관의 보험가입금액 한도(보험기간 통산)",
+        "limitAmount": null,
+        "limitCurrency": null,
+        "description": null
+      }
+    ],
+    "requiredDocuments": [],
+    "exclusions": [
+      {
+        "title": "보통약관상 보험금 부지급 사유 준용",
+        "description": "보통약관 제5조 제1항 제1호 내지 제3호, 제5호에 해당하는 사유로 발생한 경우 보상하지 않음",
+        "sourceText": "제3조(보험금을 지급하지 않는 사유) 회사는 보통약관 제5조(보험금을 지급하지 않는 사유) 제1항 제1호 내지 제3호, 제5호에 의하여 보험금 지급사유가 발생한 때에는 보험금을 지급하지 않습니다.",
+        "severity": "HIGH"
+      },
+      {
+        "title": "타인으로부터 손해배상을 받을 수 있는 경우",
+        "description": null,
+        "sourceText": "회사는 제2조(중대사고 구조송환비용의 범위)의 비용 중 정당하다고 인정된 부분에 대해서만 보상하며, 계약자, 피보험자 또는 보험수익자가 타인으로부터 손해배상을 받을 수 있는 경우에는 그 금액을 지급하지 않습니다.",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "여행경로 변경 통지의무 미이행",
+        "description": "계약 후 알릴 의무를 이행하지 않은 경우 여행경로 변경 이후의 사고로 인한 상해는 보상하지 않음",
+        "sourceText": "③ 계약자 또는 피보험자가 제1항의 계약 후 알릴 의무를 이행하지 않은 경우에는 회사는 피보험자가 여행경로를 변경한 이후의 사고로 인한 상해에 대해서는 보상하지 않습니다.",
+        "severity": "MEDIUM"
+      }
+    ],
+    "sources": [
+      {
+        "chunkId": "db_travel_0196",
+        "sourceRole": "COVERAGE",
+        "quoteText": "제1조(보험금의 지급사유) ① 회사는 아래의 사유로 계약자, 피보험자 또는 피보험자의 법정상속인이 부담하는 비용을 이 특별약관에 따라 중대사고 구조송환비용 보험금으로 지급합니다."
+      },
+      {
+        "chunkId": "db_travel_0197",
+        "sourceRole": "LIMIT",
+        "quoteText": "5. 제잡비\n구원자의 출입국 절차에 필요한 비용(여권인지대, 사증료, 예방접종료 등) 및 구원자 또는 피보험자가 현지에서 지출한 교통비, 통신비, 피보험자 유해처리비 등을 말하고 10만원을 한도로 합니다."
+      },
+      {
+        "chunkId": "db_travel_0198",
+        "sourceRole": "EXCLUSION",
+        "quoteText": "제3조(보험금을 지급하지 않는 사유) 회사는 보통약관 제5조(보험금을 지급하지 않는 사유) 제1항 제1호 내지 제3호, 제5호에 의하여 보험금 지급사유가 발생한 때에는 보험금을 지급하지 않습니다."
+      },
+      {
+        "chunkId": "db_travel_0201",
+        "sourceRole": "LIMIT",
+        "quoteText": "제6조(보상한도액) 회사가 이 특별약관에 관하여 지급할 보험금은 보험기간을 통하여 이 특별약관의 보험가입금액을 한도로 합니다."
+      },
+      {
+        "chunkId": "db_travel_0204",
+        "sourceRole": "EXCLUSION",
+        "quoteText": "③ 계약자 또는 피보험자가 제1항의 계약 후 알릴 의무를 이행하지 않은 경우에는 회사는 피보험자가 여행경로를 변경한 이후의 사고로 인한 상해에 대해서는 보상하지 않습니다."
+      }
+    ]
+  },
+  {
+    "title": "해외여행 중 배상책임",
+    "subtitle": "해외여행 중 우연한 사고로 타인의 신체 장해 또는 재물 손해에 대한 법률상 배상책임 부담 시 보상",
+    "category": "liability",
+    "limitLabel": null,
+    "isCovered": true,
+    "coverageStatus": "COVERED",
+    "limitAmount": null,
+    "limitCurrency": "KRW",
+    "conditions": "보통약관 제3조(보험금의 지급사유)의 해외여행 중에 생긴 우연한 사고로 타인의 신체의 장해(상해ㆍ질병, 그로 인한 사망ㆍ후유장해) 또는 재물의 손해(재물의 없어짐, 손상 및 망가짐 포함)에 대한 법률상의 배상책임을 부담함으로써 입은 손해를 보상. 보상한도액과 자기부담금은 각각 보험증권에 기재된 금액에 따르며, 자기부담금이 약정된 경우 이를 초과한 부분만 보상",
+    "detailItems": [
+      {
+        "title": "피보험자가 피해자에게 지급할 책임을 지는 법률상의 손해배상금",
+        "subtitle": null,
+        "isCovered": true
+      },
+      {
+        "title": "손해의 방지 또는 경감을 위하여 지출한 필요 또는 유익하였던 비용",
+        "subtitle": null,
+        "isCovered": true
+      },
+      {
+        "title": "제3자로부터 손해의 배상을 받을 권리를 지키거나 행사하기 위하여 지출한 필요 또는 유익하였던 비용",
+        "subtitle": null,
+        "isCovered": true
+      },
+      {
+        "title": "소송비용, 변호사 비용, 중재·화해 또는 조정에 관한 비용",
+        "subtitle": null,
+        "isCovered": true
+      },
+      {
+        "title": "보험증권상의 보상한도액내의 금액에 대한 공탁보증보험료",
+        "subtitle": "회사는 그러한 보증을 제공할 책임은 부담하지 않습니다",
+        "isCovered": true
+      },
+      {
+        "title": "회사의 요구(제12조 제2항·제3항)에 따르기 위하여 지출한 비용",
+        "subtitle": null,
+        "isCovered": true
+      },
+      {
+        "title": "호텔의 객실이나 객실내의 동산에 끼치는 손해",
+        "subtitle": "소유·사용·관리 재물 면책의 예외로 보상",
+        "isCovered": true
+      },
+      {
+        "title": "피보험자의 가사사용인이 업무 종사중 입은 신체의 장해로 인한 배상책임",
+        "subtitle": "근로자 면책의 예외로 보상",
+        "isCovered": true
+      }
+    ],
+    "subLimits": [
+      {
+        "label": "법률상의 손해배상금",
+        "value": "보상한도액 한도, 자기부담금 초과분 보상",
+        "limitAmount": null,
+        "limitCurrency": null,
+        "description": "제3조 제2항 제1호의 손해배상금 : 보상한도액을 한도로 보상하되, 자기부담금이 약정된 경우에는 그 자기부담금을 초과한 부분만 보상합니다."
+      },
+      {
+        "label": "손해방지비용·권리보전비용·회사요구 협조비용",
+        "value": "전액 보상",
+        "limitAmount": null,
+        "limitCurrency": null,
+        "description": "제3조 제2항 제2호 '가'목, '나'목 또는 '마'목의 비용 : 비용의 전액을 보상합니다."
+      },
+      {
+        "label": "소송·변호사·중재·화해·조정 비용 및 공탁보증보험료",
+        "value": "손해배상금과 합산하여 보상한도액 내 보상",
+        "limitAmount": null,
+        "limitCurrency": null,
+        "description": "이 비용과 제1호에 의한 보상액의 합계액을 보상한도액내에서 보상합니다."
+      },
+      {
+        "label": "가지급보험금",
+        "value": "회사 추정 보험금의 50% 상당액",
+        "limitAmount": null,
+        "limitCurrency": null,
+        "description": "지급할 보험금이 결정되기 전이라도 피보험자의 청구가 있을 때에는 회사가 추정한 보험금의 50% 상당액을 가지급보험금으로 지급합니다."
+      },
+      {
+        "label": "의무보험과의 관계",
+        "value": "의무보험 보상금액 초과액만 보상",
+        "limitAmount": null,
+        "limitCurrency": null,
+        "description": "회사는 이 약관에 의하여 보상하여야 하는 금액이 의무보험에서 보상하는 금액을 초과할 때에 한하여 그 초과액만을 보상합니다."
+      }
+    ],
+    "requiredDocuments": [
+      {
+        "documentName": "보험금 청구서(회사양식)",
+        "isMandatory": true
+      },
+      {
+        "documentName": "신분증(주민등록증이나 운전면허증 등 사진이 붙은 정부기관발행 신분증, 본인이 아닌 경우에는 본인의 인감증명서 또는 본인서명사실확인서 포함)",
+        "isMandatory": true
+      },
+      {
+        "documentName": "손해배상금 및 그 밖의 비용을 지급하였음을 증명하는 서류",
+        "isMandatory": true
+      },
+      {
+        "documentName": "회사가 요구하는 그 밖의 서류",
+        "isMandatory": false
+      }
+    ],
+    "exclusions": [
+      {
+        "title": "고의로 생긴 손해",
+        "description": null,
+        "sourceText": "1. 계약자, 피보험자 또는 이들의 법정대리인의 고의로 생긴 손해에 대한 배상책임",
+        "severity": "HIGH"
+      },
+      {
+        "title": "전쟁·테러·폭동 등",
+        "description": null,
+        "sourceText": "2. 전쟁, 혁명, 내란, 사변, 테러, 폭동, 소요, 노동쟁의 기타 이들과 유사한 사태로 생긴 손해에 대한 배상책임",
+        "severity": "HIGH"
+      },
+      {
+        "title": "천재지변",
+        "description": null,
+        "sourceText": "3. 지진, 분화, 홍수, 해일 또는 이와 비슷한 천재지변으로 생긴 손해에 대한 배상책임",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "소유·사용·관리하는 재물에 대한 배상책임",
+        "description": "호텔 객실 및 객실내 동산 손해는 보상",
+        "sourceText": "4. 피보험자가 소유, 사용 또는 관리하는 재물이 손해를 입었을 경우에 그 재물에 대하여 정당한 권리를 가진 사람에게 부담하는 손해에 대한 배상책임. 단, 호텔의 객실이나 객실내의 동산에 끼치는 손해에 대하여는 보상합니다.",
+        "severity": "HIGH"
+      },
+      {
+        "title": "약정에 의해 가중된 배상책임",
+        "description": null,
+        "sourceText": "5. 피보험자와 타인 간에 손해배상에 관한 약정이 있는 경우, 그 약정에 의하여 가중된 배상책임",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "핵연료물질 관련 사고",
+        "description": null,
+        "sourceText": "6. 핵연료물질 또는 핵연료 물질에 의하여 오염된 물질의 방사성, 폭발성 그 밖의 유해한 특성 또는 이들의 특성에 의한 사고로 생긴 손해에 대한 배상책임",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "방사선·방사능 오염",
+        "description": null,
+        "sourceText": "7. 제6호 이외의 방사선을 쬐는 것 또는 방사능 오염으로 인한 손해",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "직무수행으로 인한 배상책임",
+        "description": null,
+        "sourceText": "8. 피보험자의 직무수행을 직접적인 원인으로 하는 배상책임",
+        "severity": "HIGH"
+      },
+      {
+        "title": "직무용 동산의 소유·사용·관리",
+        "description": null,
+        "sourceText": "9. 피보험자의 직무용으로만 사용되는 동산의 소유, 사용 또는 관리로 인한 배상책임",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "부동산으로 인한 배상책임",
+        "description": null,
+        "sourceText": "10. 피보험자가 소유, 사용 또는 관리하는 부동산으로 인한 배상책임",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "근로자의 업무상 신체 장해",
+        "description": "가사사용인은 보상",
+        "sourceText": "11. 피보험자의 근로자가 피보험자의 업무에 종사중에 입은 신체의 장해로 인한 배상책임. 다만, 피보험자의 가사사용인에 대하여는 보상합니다.",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "친족에 대한 배상책임",
+        "description": null,
+        "sourceText": "12. 피보험자와 세대를 같이하는 친족(민법 제777조 규정의 범위와 같습니다) 및 여행과정을 같이하는 친족에 대한 배상책임",
+        "severity": "HIGH"
+      },
+      {
+        "title": "심신상실로 인한 배상책임",
+        "description": null,
+        "sourceText": "13. 피보험자의 심신상실로 인한 배상책임",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "폭행 또는 구타",
+        "description": null,
+        "sourceText": "14. 피보험자 또는 피보험자의 지시에 따른 폭행 또는 구타로 인한 배상책임",
+        "severity": "HIGH"
+      },
+      {
+        "title": "항공기·선박·차량·총기의 소유·사용·관리",
+        "description": null,
+        "sourceText": "15. 항공기, 선박, 차량(원동력이 인력에 의한 것은 제외합니다), 총기(공기총은 제외합니다)의 소유, 사용, 관리로 인한 배상책임",
+        "severity": "HIGH"
+      },
+      {
+        "title": "사고 통지 게을리로 증가된 손해",
+        "description": null,
+        "sourceText": "② 계약자 또는 피보험자가 제1항 각호의 통지를 게을리하여 손해가 증가된 때에는 회사는 그 증가된\n손해를 보상하지 않으며, 제1항 제3호의 통지를 게을리 한 때에는 소송비용과 변호사비용도 보상하지\n않습니다.",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "회사 요구에 대한 비협조로 늘어난 손해",
+        "description": null,
+        "sourceText": "④ 계약자 및 피보험자가 정당한 이유없이 제2항, 제3항의 요구에 협조하지 않았을 때에는 회사는 그로\n인하여 늘어난 손해는 보상하지 않습니다.",
+        "severity": "MEDIUM"
+      }
+    ],
+    "sources": [
+      {
+        "chunkId": "db_travel_0164",
+        "sourceRole": "COVERAGE",
+        "quoteText": "제3조(보상하는 손해) ① 회사는 피보험자가 보통약관 제3조(보험금의 지급사유)의 해외여행 중에 생긴\n우연한 사고(이하「사고」라 합니다)로 타인의 신체의 장해(상해ㆍ질병, 그로 인한 사망ㆍ후유장해를 말합\n니다) 또는 재물의 손해(재물의 없어짐, 손상 및 망가짐을 포함합니다)에 대한 법률상의 배상책임을 부담\n함으로써 입은 아래의 손해를 이 약관에 따라 보상합니다."
+      },
+      {
+        "chunkId": "db_travel_0161",
+        "sourceRole": "LIMIT",
+        "quoteText": "나. 보상한도액: 회사와 계약자간에 약정한 금액으로 피보험자가 법률상의 배상책임을 부담함으로써\n입은 손해 중 제8조(보험금 등의 지급한도)에 따라 회사가 책임지는 금액의 최대 한도를 말합니다."
+      },
+      {
+        "chunkId": "db_travel_0170",
+        "sourceRole": "LIMIT",
+        "quoteText": "제8조(보험금 등의 지급한도) 회사는 1회의 보험사고에 대하여 다음과 같이 보상합니다. 이 경우 보상한\n도액과 자기부담금은 각각 보험증권에 기재된 금액을 말합니다."
+      },
+      {
+        "chunkId": "db_travel_0166",
+        "sourceRole": "EXCLUSION",
+        "quoteText": "제4조(보상하지 않는 손해) 회사는 아래의 사유로 인한 손해는 보상하여 드리지 않습니다."
+      },
+      {
+        "chunkId": "db_travel_0167",
+        "sourceRole": "EXCLUSION",
+        "quoteText": "② 계약자 또는 피보험자가 제1항 각호의 통지를 게을리하여 손해가 증가된 때에는 회사는 그 증가된\n손해를 보상하지 않으며, 제1항 제3호의 통지를 게을리 한 때에는 소송비용과 변호사비용도 보상하지\n않습니다."
+      },
+      {
+        "chunkId": "db_travel_0168",
+        "sourceRole": "DOCUMENT",
+        "quoteText": "제6조(보험금의 청구) 피보험자가 보험금을 청구할 때에는 다음의 서류를 회사에 제출하여야 합니다.\n1. 보험금 청구서(회사양식)\n2. 신분증(주민등록증이나 운전면허증 등 사진이 붙은 정부기관발행 신분증, 본인이 아닌 경우에는 본\n인의 인감증명서 또는 본인서명사실확인서 포함)\n3. 손해배상금 및 그 밖의 비용을 지급하였음을 증명하는 서류\n4. 회사가 요구하는 그 밖의 서류"
+      },
+      {
+        "chunkId": "db_travel_0171",
+        "sourceRole": "LIMIT",
+        "quoteText": "제9조(의무보험과의 관계) ① 회사는 이 약관에 의하여 보상하여야 하는 금액이 의무보험에서 보상하는\n금액을 초과할 때에 한하여 그 초과액만을 보상합니다."
+      },
+      {
+        "chunkId": "db_travel_0174",
+        "sourceRole": "EXCLUSION",
+        "quoteText": "④ 계약자 및 피보험자가 정당한 이유없이 제2항, 제3항의 요구에 협조하지 않았을 때에는 회사는 그로\n인하여 늘어난 손해는 보상하지 않습니다."
+      }
+    ]
+  },
+  {
+    "title": "해외여행중 중단사고발생 추가비용",
+    "subtitle": "여행중단으로 추가 발생한 항공·선박 운임 및 숙박비용 보상",
+    "category": "trip_cancellation",
+    "limitLabel": null,
+    "isCovered": true,
+    "coverageStatus": "COVERED",
+    "limitAmount": null,
+    "limitCurrency": null,
+    "conditions": "여행중단 사유 발생 이전에 귀국 항공 또는 선박 운임비용을 미리 지급한 경우에 한하여, 여행을 중단하고 일정을 변경하여 귀국함으로써 미리 지급한 금액을 초과하여 추가로 발생하는 운임비용 및 2박 이내의 숙박비용을 보상",
+    "detailItems": [
+      {
+        "title": "추가 항공 또는 선박 운임비용",
+        "subtitle": "미리 지급한 운임비용을 초과하여 추가로 발생하는 금액",
+        "isCovered": true
+      },
+      {
+        "title": "추가 숙박비용",
+        "subtitle": "미리 지급한 숙박비용을 초과하여 추가로 발생하는 2박 이내의 숙박비용",
+        "isCovered": true
+      }
+    ],
+    "subLimits": [
+      {
+        "label": "숙박비용",
+        "value": "2박 이내",
+        "limitAmount": null,
+        "limitCurrency": null,
+        "description": "여행중단 후 귀국으로 인해 미리 지급한 숙박비용을 초과하여 추가 발생하는 2박 이내의 숙박비용"
+      }
+    ],
+    "requiredDocuments": [],
+    "exclusions": [
+      {
+        "title": "보통약관상 보험금을 지급하지 않는 사유(제5조 제1항 제5호 제외)",
+        "description": null,
+        "sourceText": "제4조(보상하지 않는 손해) 회사는 보통약관 제5조(보험금을 지급하지 않는 사유)의 제 1항 제 5호를 제외한 사유 및 계약자와 피보험자 및 보험수익자의 고의로 인하여 생긴 손해는 보상하여 드리지 않습니다.",
+        "severity": "HIGH"
+      },
+      {
+        "title": "계약자·피보험자·보험수익자의 고의로 생긴 손해",
+        "description": null,
+        "sourceText": "계약자와 피보험자 및 보험수익자의 고의로 인하여 생긴 손해는 보상하여 드리지 않습니다.",
+        "severity": "HIGH"
+      }
+    ],
+    "sources": [
+      {
+        "chunkId": "db_travel_0232",
+        "sourceRole": "COVERAGE",
+        "quoteText": "1. 피보험자가 여행중단 사유 발생 이전에 귀국항공 또는 선박 운임비용을 미리 지급한 경우에 한하여 여행중단 사유 발생으로 여행을 중단하고 일정을 변경하여 귀국함으로서 미리 지급한 항공 또는 선박 운임비용을 초과하여 피보험자에게 추가로 발생하는 항공 또는 선박 운임비용"
+      },
+      {
+        "chunkId": "db_travel_0232",
+        "sourceRole": "LIMIT",
+        "quoteText": "2. 피보험자가 여행중단 사유 발생으로 여행중단 후 귀국으로 인해 여행중단 사유 발생 이전에 미리 지급한 숙박비용을 초과하여 피보험자에게 추가로 발생하는 2박 이내의 숙박비용"
+      },
+      {
+        "chunkId": "db_travel_0232",
+        "sourceRole": "EXCLUSION",
+        "quoteText": "제4조(보상하지 않는 손해) 회사는 보통약관 제5조(보험금을 지급하지 않는 사유)의 제 1항 제 5호를 제외한 사유 및 계약자와 피보험자 및 보험수익자의 고의로 인하여 생긴 손해는 보상하여 드리지 않습니다."
+      }
+    ]
+  },
+  {
+    "title": "사망/후유장해",
+    "subtitle": "해외여행 중 상해 사망·후유장해 및 질병 사망·80% 이상 고도후유장해 보장",
+    "category": "death_disability",
+    "limitLabel": null,
+    "isCovered": true,
+    "coverageStatus": "COVERED",
+    "limitAmount": null,
+    "limitCurrency": "KRW",
+    "conditions": "보험증권에 기재된 여행을 목적으로 주거지를 출발하여 여행을 마치고 주거지에 도착할 때까지의 여행도중 보험기간 중 상해의 직접결과로 사망하거나 장해분류표에서 정한 장해지급률에 해당하는 장해상태가 된 경우 지급. 질병으로 인한 사망은 보통약관에서 제외되며, 별도 특별약관(해외여행중 질병사망 및 질병 80%이상 고도후유장해)에서 보장. 보험금액은 보험증권에 기재된 보험가입금액에 따름.",
+    "detailItems": [
+      {
+        "title": "상해 사망보험금",
+        "subtitle": "보험기간 중 상해의 직접결과로써 사망한 경우(질병으로 인한 사망 제외)",
+        "isCovered": true
+      },
+      {
+        "title": "상해 후유장해보험금",
+        "subtitle": "보험기간 중 상해로 장해분류표에서 정한 각 장해지급률에 해당하는 장해상태가 되었을 때",
+        "isCovered": true
+      },
+      {
+        "title": "질병 사망보험금 (특별약관)",
+        "subtitle": "해외여행 중 질병으로 사망하였을 경우 보험증권에 기재된 보험가입금액 지급",
+        "isCovered": true
+      },
+      {
+        "title": "질병 80% 이상 고도후유장해보험금 (특별약관)",
+        "subtitle": "해외여행 중 진단확정된 질병으로 장해지급률 80% 이상 장해상태가 되었을 때",
+        "isCovered": true
+      },
+      {
+        "title": "보험기간 종료 후 30일 이내 사망·고도장해 (특별약관)",
+        "subtitle": "해외여행 중 발생한 질병을 직접원인으로 보험기간 마지막 날로부터 30일 이내 사망하거나 80% 이상 장해상태가 된 경우",
+        "isCovered": true
+      }
+    ],
+    "subLimits": [
+      {
+        "label": "하나의 상해로 인한 후유장해보험금 한도",
+        "value": "보험가입금액 한도",
+        "limitAmount": null,
+        "limitCurrency": null,
+        "description": "회사가 지급하여야 할 하나의 상해로 인한 후유장해보험금은 보험가입금액을 한도로 합니다."
+      },
+      {
+        "label": "장해지급률 확정 기준",
+        "value": "상해 발생일부터 180일",
+        "limitAmount": null,
+        "limitCurrency": null,
+        "description": "장해지급률이 상해 발생일부터 180일 이내에 확정되지 않는 경우 180일이 되는 날의 의사 진단에 기초하여 고정될 것으로 인정되는 상태를 장해지급률로 결정"
+      },
+      {
+        "label": "1상지(팔과 손가락) 후유장해지급률",
+        "value": "60% 한도",
+        "limitAmount": null,
+        "limitCurrency": null,
+        "description": "1상지(팔과 손가락)의 후유장해지급률은 원칙적으로 각각 합산하되, 지급률은 60% 한도로 한다."
+      },
+      {
+        "label": "1하지(다리와 발가락) 후유장해지급률",
+        "value": "60% 한도",
+        "limitAmount": null,
+        "limitCurrency": null,
+        "description": "1하지(다리와 발가락)의 후유장해지급률은 원칙적으로 각각 합산하되, 지급률은 60% 한도로 한다."
+      },
+      {
+        "label": "한시적 장해(5년 이상)",
+        "value": "해당 장해지급률의 20%",
+        "limitAmount": null,
+        "limitCurrency": null,
+        "description": "치료 종결 후 한시적으로 나타나는 장해에 대하여는 그 기간이 5년 이상인 경우 해당 장해지급률의 20%를 장해지급률로 한다."
+      },
+      {
+        "label": "보험금 지급기일",
+        "value": "서류 접수일부터 3영업일 이내",
+        "limitAmount": null,
+        "limitCurrency": null,
+        "description": "조사가 필요한 경우 지급예정일은 서류 접수일부터 30영업일 이내에서 정함"
+      }
+    ],
+    "requiredDocuments": [],
+    "exclusions": [
+      {
+        "title": "질병으로 인한 사망(보통약관)",
+        "description": "보통약관 사망보험금에서 질병으로 인한 사망은 제외됨",
+        "sourceText": "1. 보험기간 중에 상해의 직접결과로써 사망한 경우(질병으로 인한 사망은 제외합니다): 사망보험금",
+        "severity": "HIGH"
+      },
+      {
+        "title": "장해분류표 최저 지급률에 이르지 않는 후유장해",
+        "description": null,
+        "sourceText": "다만, 장해분류표의 각 장해분류별 최저 지급률 장해정도에 이르지 않는 후유장해에 대하여는 후유장해보험금을 지급하지 않습니다.",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "동일 부위 가중 장해 시 기지급액 차감",
+        "description": null,
+        "sourceText": "그러나 그 후유장해가 이미 후유장해보험금을 지급받은 동일한 부위에 가중된 때에는 최종 장해상태에 해당하는 후유장해보험금에서 이미 지급받은 후유장해보험금을 차감하여 지급합니다.",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "일시적 증상은 장해에 미포함",
+        "description": null,
+        "sourceText": "다만, 질병과 부상의 주증상과 합병증상 및 이에 대한 치료를 받는 과정에서 일시적으로 나타나는 증상은 장해에 포함되지 않는다.",
+        "severity": "MEDIUM"
+      },
+      {
+        "title": "일상생활 기본동작 지급률 10% 미만 장해 불인정",
+        "description": null,
+        "sourceText": "위 가)의 경우 ‘<붙임> 일상생활 기본동작(ADLs) 제한 장해평가표’상 지급률이 10% 미만인 경우에는 보장대상이 되는 장해로 인정하지 않는다.",
+        "severity": "LOW"
+      },
+      {
+        "title": "예방적 장기 절제·노화에 의한 기능장해 제외",
+        "description": null,
+        "sourceText": "흉복부, 비뇨생식기계 장해는 질병 또는 외상의 직접 결과로 인한 장해를 말하며, 노화에 의한 기능장해 또는 질병이나 외상이 없는 상태에서 예방적으로 장기를 절제, 적출한 경우는 장해로 보지 않는다.",
+        "severity": "LOW"
+      },
+      {
+        "title": "관절 미사용으로 인한 일시적 기능장해 제외",
+        "description": null,
+        "sourceText": "관절을 사용하지 않아 발생한 일시적인 기능장해(예를 들면 캐스트로 환부를 고정시켰기 때문에 치유 후의 관절에 기능장해가 발생한 경우)는 장해로 평가하지 않는다.",
+        "severity": "LOW"
+      }
+    ],
+    "sources": [
+      {
+        "chunkId": "db_travel_0009",
+        "sourceRole": "COVERAGE",
+        "quoteText": "제3조(보험금의 지급사유) 회사는 피보험자가 보험증권에 기재된 여행을 목적으로 주거지를 출발하여 여행을 마치고 주거지에 도착할 때까지의 여행도중에 다음 중 어느 하나의 사유가 발생한 경우에는 보험수익자에게 약정한 보험금을 지급합니다.\n1. 보험기간 중에 상해의 직접결과로써 사망한 경우(질병으로 인한 사망은 제외합니다): 사망보험금\n2. 보험기간 중 상해로 장해분류표(【별표1】참조)에서 정한 각 장해지급률에 해당하는 장해상태가 되었을 때: 후유장해보험금"
+      },
+      {
+        "chunkId": "db_travel_0011",
+        "sourceRole": "LIMIT",
+        "quoteText": "⑩ 회사가 지급하여야 할 하나의 상해로 인한 후유장해보험금은 보험가입금액을 한도로 합니다."
+      },
+      {
+        "chunkId": "db_travel_0011",
+        "sourceRole": "COVERAGE",
+        "quoteText": "③ 제3조(보험금의 지급사유) 제2호에서 장해지급률이 상해 발생일부터 180일 이내에 확정되지 않는 경우에는 상해 발생일부터 180일이 되는 날의 의사 진단에 기초하여 고정될 것으로 인정되는 상태를 장해지급률로 결정합니다."
+      },
+      {
+        "chunkId": "db_travel_0154",
+        "sourceRole": "COVERAGE",
+        "quoteText": "1. 보통약관 제3조(보험금의 지급사유)의 해외여행 중(이하 “해외여행 중”이라 합니다)에 질병으로 사망하였을 경우에는 보험증권에 기재된 보험가입금액을 사망보험금으로 지급합니다.\n2. 해외여행 중 진단확정된 질병으로 장해분류표(【별표1】참조. 이하 같습니다)에서 정한 장해지급률이 80% 이상에 해당하는 장해상태가 되었을 때에는 보험증권에 기재된 보험가입금액을 고도후유장해보험금으로 지급합니다."
+      },
+      {
+        "chunkId": "db_travel_0155",
+        "sourceRole": "EXCLUSION",
+        "quoteText": "④ 장해분류표에 해당되지 않는 후유장해는 피보험자의 직업, 연령, 신분 또는 성별 등에 관계없이 신체의 장해정도에 따라 장해분류표의 구분에 준하여 지급액을 결정합니다. 다만, 장해분류표의 각 장해분류별 최저 지급률 장해정도에 이르지 않는 후유장해에 대하여는 후유장해보험금을 지급하지 않습니다."
+      },
+      {
+        "chunkId": "db_travel_0015",
+        "sourceRole": "DOCUMENT",
+        "quoteText": "제8조(보험금의 지급절차) ① 회사는 제7조(보험금의 청구)에서 정한 서류를 접수한 때에는 접수증을 드리고 휴대전화 문자메시지 또는 전자우편 등으로도 송부하며, 그 서류를 접수한 날부터 3영업일 이내에 보험금을 지급합니다."
+      },
+      {
+        "chunkId": "db_travel_0315",
+        "sourceRole": "LIMIT",
+        "quoteText": "4) 다만, 영구히 고정된 증상은 아니지만 치료 종결 후 한시적으로 나타나는 장해에 대하여는 그 기간이 5년 이상인 경우 해당 장해지급률의 20%를 장해지급률로 한다."
+      },
+      {
+        "chunkId": "db_travel_0356",
+        "sourceRole": "LIMIT",
+        "quoteText": "2) 1상지(팔과 손가락)의 후유장해지급률은 원칙적으로 각각 합산하되, 지급률은 60% 한도로 한다."
+      },
+      {
+        "chunkId": "db_travel_0360_2",
+        "sourceRole": "LIMIT",
+        "quoteText": "2) 1하지(다리와 발가락)의 후유장해지급률은 원칙적으로 각각 합산하되, 지급률은 60% 한도로 한다."
+      },
+      {
+        "chunkId": "db_travel_0371",
+        "sourceRole": "EXCLUSION",
+        "quoteText": "나) 위 가)의 경우 ‘<붙임> 일상생활 기본동작(ADLs) 제한 장해평가표’상 지급률이 10% 미만인 경우에는 보장대상이 되는 장해로 인정하지 않는다."
+      },
+      {
+        "chunkId": "db_travel_0370",
+        "sourceRole": "EXCLUSION",
+        "quoteText": "6) 흉복부, 비뇨생식기계 장해는 질병 또는 외상의 직접 결과로 인한 장해를 말하며, 노화에 의한 기능장해 또는 질병이나 외상이 없는 상태에서 예방적으로 장기를 절제, 적출한 경우는 장해로 보지 않는다."
+      },
+      {
+        "chunkId": "db_travel_0355",
+        "sourceRole": "EXCLUSION",
+        "quoteText": "2) 관절을 사용하지 않아 발생한 일시적인 기능장해(예를 들면 캐스트로 환부를 고정시켰기 때문에 치유 후의 관절에 기능장해가 발생한 경우)는 장해로 평가하지 않는다."
+      },
+      {
+        "chunkId": "db_travel_0156",
+        "sourceRole": "COVERAGE",
+        "quoteText": "제3조(보험수익자의 지정) 계약자는 보험수익자를 지정할 수 있으며 보험수익자를 지정하지 않은 때에는 보험수익자를 제1조(보험금의 지급사유) 제1호의 경우는 피보험자의 상속인으로 하며, 동조 제2호의 경우는 피보험자로 합니다."
+      }
+    ]
+  }
+]

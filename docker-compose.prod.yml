@@ -1,0 +1,103 @@
+# 운영 배포용. Spring과 같은 EC2에 올리되 compose는 따로 둔다.
+#
+# 왜 같은 호스트인가
+#   RDS와 같은 VPC 안이라 DB에 바로 붙는다. 별도 EC2를 만들면 VPC ID를 받아
+#   맞춰야 하고 보안그룹도 새로 열어야 한다. 분석 1건의 CPU 사용을 재보니
+#   평균 0.1%(14코어 기준)라 Spring과 나눠 써도 경합이 없다.
+#
+# 왜 compose는 따로인가
+#   같은 compose에 넣으면 Spring을 배포할 때마다 이 컨테이너도 재시작된다.
+#   분석은 3~4분간 프로세스 안에서 돌기 때문에, 그 사이 재시작되면 작업이
+#   통째로 날아가고 콜백을 못 보내 analysis_results가 PROCESSING에 고착된다.
+#   에러도 로그도 남지 않아 알아채기 어렵다.
+#
+# 준비
+#   없다. Spring compose가 만든 polight_polight-network 에 합류하므로
+#   네트워크를 새로 만들 필요도, 남의 compose를 고칠 필요도 없다.
+#
+# 배포
+#   DOCKER_BUILDKIT=0 docker build -t polight-ai:latest .
+#   docker compose -f docker-compose.prod.yml up -d
+#
+#   up -d --build 는 서버에 buildx가 없어 실패한다. 아래 image: 를 미리 만들어 두고
+#   --build 없이 올린다. 자세한 사정은 DEPLOY.md.
+#
+# 서로 부르는 주소 (컨테이너 이름으로 통신한다)
+#   Spring -> AI      http://polight-ai:8000/internal/rag/query
+#   AI -> Spring      SPRING_BASE_URL=http://polight-backend:8080
+#   AI -> DB          postgresql://polight:...@postgres:5432/polight
+#
+# 주의: 백엔드가 docker compose down 을 하면 우리 컨테이너가 붙어 있어서
+# 네트워크 삭제에 실패했다는 경고가 뜬다. 무해하다. 네트워크는 그대로 남고
+# 양쪽 다 정상 동작한다.
+
+services:
+  ai:
+    build: .
+    image: polight-ai:latest
+    container_name: polight-ai
+
+    # 키와 DB 주소는 파일로 넘긴다. compose에 직접 쓰면 깃에 올라간다.
+    env_file: .env
+
+    # 메모리 상한.
+    #
+    # 실측 최대 189MB라 1GB면 넉넉하다. 상한을 두는 이유는 우리가 새어나가도
+    # Spring(JVM)을 굶기지 않기 위해서다. t3.medium은 4GB뿐이라 한쪽이
+    # 다 먹으면 다른 쪽이 OOM으로 죽는다.
+    mem_limit: 1g
+    mem_reservation: 256m
+
+    restart: unless-stopped
+
+    # 포트를 호스트에 열지 않는다.
+    #
+    # 같은 네트워크의 컨테이너만 접근하면 되므로 외부에 노출할 이유가 없다.
+    # 보안그룹으로 막는 것보다 아예 열지 않는 편이 확실하다.
+    # 디버깅이 필요하면 임시로 ports를 추가하되, 끝나면 지운다.
+    expose:
+      - "8000"
+
+    networks:
+      - polight-network
+
+    # 약관 PDF와 파싱 캐시를 컨테이너 밖에 둔다.
+    #
+    # 재배포해도 유지되므로 이미 분석한 약관을 다시 내려받거나 다시 파싱하지
+    # 않는다. Upstage 파싱은 유료라 캐시가 그대로 비용이다.
+    # 약관 1건당 약 3MB 쌓인다(PDF 2.4MB + 파싱 캐시 0.6MB).
+    volumes:
+      - ai-data:/app/data
+
+    # 컨테이너가 살아 있어도 앱이 죽어 있을 수 있다. 헬스체크로 구분한다.
+    # /health는 인증 없이 열려 있다.
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import httpx,sys; sys.exit(0 if httpx.get('http://localhost:8000/health', timeout=3).status_code==200 else 1)\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      # 기동에 2초 정도 걸린다. 그 사이 실패로 세지 않도록 여유를 둔다.
+      start_period: 30s
+
+    logging:
+      driver: json-file
+      options:
+        # 로그가 무한히 쌓이면 디스크를 채우고, 디스크가 차면 Spring까지 같이 죽는다.
+        max-size: "20m"
+        max-file: "3"
+
+volumes:
+  ai-data:
+
+networks:
+  polight-network:
+    # Spring compose가 이미 만들어 둔 네트워크에 합류한다.
+    #
+    # 공용 네트워크를 새로 만들어 양쪽을 붙이는 방법도 있지만, 그러면 남의
+    # 컨테이너 설정을 건드려야 한다. 여기에 우리만 들어가면 Spring과 postgres는
+    # 손대지 않아도 되고, 컨테이너 이름으로 바로 통신된다.
+    #
+    # 이름은 compose 프로젝트명(polight) + 네트워크명(polight-network)이 붙은 것으로,
+    # docker network ls 로 확인한 실제 이름이다.
+    name: polight_polight-network
+    external: true

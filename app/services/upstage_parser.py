@@ -1,3 +1,4 @@
+import hashlib
 import json
 import logging
 from pathlib import Path
@@ -73,6 +74,36 @@ def _parse_in_batches(pdf_path: Path, api_key: str) -> list[dict]:
     return elements
 
 
+# 파싱 캐시의 키.
+#
+# 파일명이 아니라 내용 해시를 쓴다. 같은 약관을 여러 사용자가 올려도 파싱은 한 번만
+# 하기 위해서다.
+#
+# 이전에는 파일명(stem)을 키로 썼는데, analysis_service가 내려받은 PDF를
+# "{document_id}.pdf"로 저장하므로 사용자마다 이름이 달랐다. 같은 보험 상품의 같은
+# 약관인데도 캐시가 매번 빗나가, 100명이 가입하면 126페이지를 100번 파싱했다.
+# 파싱은 페이지 단위 과금이고 파이프라인에서 가장 비싼 단계다.
+#
+# 내용이 1비트라도 다르면 다른 약관이므로 해시가 정확한 기준이다. 개정판이 올라오면
+# 자동으로 새로 파싱된다.
+def _content_hash(pdf_path: Path) -> str:
+    digest = hashlib.sha256()
+    with pdf_path.open("rb") as f:
+        for block in iter(lambda: f.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()[:16]
+
+
+def _cache_path(pdf_path: Path) -> Path:
+    return CACHE_DIR / f"{_content_hash(pdf_path)}_upstage.json"
+
+
+# 파일명 기반으로 만들어둔 예전 캐시. 이미 돈을 낸 결과라 버리면 다시 과금된다.
+# 처음 만났을 때 해시 이름으로 옮겨두고, 이후로는 해시 경로만 본다.
+def _legacy_cache_path(pdf_path: Path) -> Path:
+    return CACHE_DIR / f"{pdf_path.stem}_upstage.json"
+
+
 # PDF 하나를 파싱해 요소 리스트를 반환한다.
 #
 # 응답을 캐시하는 이유: Upstage는 페이지 단위 과금이라 재실행할 때마다 비용이 든다.
@@ -81,11 +112,20 @@ def parse_pdf(pdf_path: Path, api_key: str | None = None, use_cache: bool = True
     if not pdf_path.exists():
         raise FileNotFoundError(f"PDF 파일을 찾을 수 없습니다: {pdf_path}")
 
-    cache_path = CACHE_DIR / f"{pdf_path.stem}_upstage.json"
-    if use_cache and cache_path.exists():
-        logger.info("캐시된 파싱 결과 사용: %s", cache_path.name)
-        with cache_path.open("r", encoding="utf-8") as f:
-            return json.load(f)
+    cache_path = _cache_path(pdf_path)
+
+    if use_cache:
+        if cache_path.exists():
+            logger.info("캐시된 파싱 결과 사용: %s (%s)", cache_path.name, pdf_path.name)
+            with cache_path.open("r", encoding="utf-8") as f:
+                return json.load(f)
+
+        legacy = _legacy_cache_path(pdf_path)
+        if legacy.exists():
+            logger.info("예전 파일명 캐시를 해시 이름으로 옮깁니다: %s -> %s", legacy.name, cache_path.name)
+            legacy.rename(cache_path)
+            with cache_path.open("r", encoding="utf-8") as f:
+                return json.load(f)
 
     api_key = api_key or get_settings().upstage_api_key
     if not api_key:
@@ -96,7 +136,7 @@ def parse_pdf(pdf_path: Path, api_key: str | None = None, use_cache: bool = True
     cache_path.parent.mkdir(parents=True, exist_ok=True)
     with cache_path.open("w", encoding="utf-8") as f:
         json.dump(elements, f, ensure_ascii=False)
-    logger.info("파싱 결과 저장: %s (요소 %d개)", cache_path.name, len(elements))
+    logger.info("파싱 결과 저장: %s (%s, 요소 %d개)", cache_path.name, pdf_path.name, len(elements))
 
     return elements
 

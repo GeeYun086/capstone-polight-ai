@@ -17,7 +17,15 @@ from app.schemas.base import CamelModel
 
 # coverage_items.coverage_status VARCHAR(20)
 # 백엔드와 확정 전이라 우리 쪽 후보를 먼저 정의한다. 확정되면 이 목록만 맞추면 된다.
-CoverageStatus = Literal["COVERED", "NOT_COVERED", "PARTIAL", "UNKNOWN"]
+# 내부 값. DB에 쓸 때 db_enums.coverage_status가 CHECK 제약값으로 번역한다.
+#
+# EXCLUDED와 NOT_COVERED를 나누는 이유는 화면 문구가 달라지기 때문이다.
+#   EXCLUDED     약관이 명시적으로 배제함 -> "이 약관은 OO를 보상하지 않습니다"
+#   NOT_COVERED  약관에 관련 조항이 아예 없음 -> "관련 내용을 찾을 수 없습니다"
+# 사용자가 "왜 안 되는지"를 아는 것과 "안 나온다"만 아는 것은 다르다.
+CoverageStatus = Literal[
+    "COVERED", "PARTIAL", "EXCLUDED", "NOT_COVERED", "UNKNOWN"
+]
 
 # exclusion_conditions.severity VARCHAR(20)
 Severity = Literal["HIGH", "MEDIUM", "LOW"]

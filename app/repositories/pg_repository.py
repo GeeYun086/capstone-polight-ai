@@ -1,17 +1,20 @@
 import logging
+import threading
 from contextlib import contextmanager
 
 import numpy as np
 import psycopg2
 from pgvector.psycopg2 import register_vector
+from psycopg2 import pool
 from psycopg2.extras import execute_values, register_uuid
 
 # psycopg2는 uuid.UUID를 기본으로 어댑트하지 못한다("can't adapt type 'UUID'").
 # 모듈 전역 등록이라 한 번만 호출하면 된다.
 register_uuid()
 
-from app.repositories.base import ChunkHit, ChunkScope
+from app.repositories.base import ChunkHit, ChunkScope, SearchScope
 from app.repositories.pg_mapper import COLUMNS, to_rows
+from app.schemas import db_enums
 from app.services.bm25 import BM25Index
 
 logger = logging.getLogger(__name__)
@@ -49,14 +52,17 @@ SELECT_FIELDS = """
 # hit.related_chunk_id를 보고 면책 조항을 끌어온다. 검색 결과에 짝의 id가 실리지 않으면
 # 이 프로젝트의 핵심인 "보장 조항에 딸린 면책 조항 동반 조회"가 통째로 작동하지 않는다.
 #
-# 규칙은 청킹 때(link_exclusion_pairs)와 같다: included 조항 바로 다음이 같은 카테고리의
-# excluded면 짝이다. UNIQUE(analysis_result_id, chunk_index)가 순서를 보장한다.
-RELATED_JOIN = """
+# 규칙은 청킹 때(link_exclusion_pairs)와 같다: 보장 조항 바로 다음이 같은 카테고리의
+# 면책 조항이면 짝이다. UNIQUE(analysis_result_id, chunk_index)가 순서를 보장한다.
+#
+# 비교값은 DB에 저장된 형태(COVERAGE/EXCLUSION)여야 한다. 내부 값(included/excluded)을
+# 그대로 쓰면 JOIN이 한 건도 매칭되지 않아 면책 동반 조회가 조용히 죽는다.
+RELATED_JOIN = f"""
 LEFT JOIN policy_chunks rel
        ON rel.analysis_result_id = c.analysis_result_id
       AND rel.chunk_index = c.chunk_index + 1
-      AND c.clause_type = 'included'
-      AND rel.clause_type = 'excluded'
+      AND c.clause_type = '{db_enums.CLAUSE_TYPE["included"]}'
+      AND rel.clause_type = '{db_enums.CLAUSE_TYPE["excluded"]}'
       AND rel.coverage_category = c.coverage_category
 """
 
@@ -95,27 +101,133 @@ WHERE c.id = ANY(%(ids)s::uuid[])
 """
 
 
+# 검색 범위를 SQL 조건으로 바꾼다.
+#
+# policy_id로 필터하지 않는다. 백엔드에 policies 행을 만드는 코드가 없어 이 컬럼이
+# 항상 null이고, SQL에서 "= NULL"은 아무 행과도 일치하지 않는다. 로컬에서 직접 값을
+# 채워 테스트했기 때문에 오래 못 보고 지나간 문제다. document_id는 NOT NULL이라
+# 분석 요청에 항상 실려 오므로 이걸 스코프 키로 쓴다.
+def _scope_condition(scope: SearchScope | None, prefix: str) -> tuple[str, dict]:
+    if scope is None or (scope.is_empty() and not scope.has_clause_filter()):
+        return "", {}
+
+    conditions: list[str] = []
+    params: dict = {}
+
+    # document_id가 있으면 그 약관만 본다. 없으면 여행 단위로 넓힌다.
+    if scope.document_id:
+        conditions.append("c.document_id = %(document_id)s")
+        params["document_id"] = scope.document_id
+    elif scope.trip_id:
+        conditions.append("c.trip_id = %(trip_id)s")
+        params["trip_id"] = scope.trip_id
+
+    # 증권에서 온 특약명 필터.
+    #
+    # clause_path가 비어 있는 청크를 항상 포함시키는 것이 중요하다. 그것들은 보통약관의
+    # 공통 조항(보험금 청구 절차, 용어 정의, 일반 면책)이라 어느 특약에도 속하지 않지만,
+    # "청구 서류 뭐 필요해요?" 같은 질문의 유일한 근거다. db_travel 222청크 중 34개가
+    # 여기 해당한다. 빼면 그 질문들이 통째로 답을 못 찾는다.
+    if scope.has_clause_filter():
+        conditions.append(
+            "(c.clause_path = ANY(%(clause_paths)s) OR c.clause_path IS NULL OR c.clause_path = '')"
+        )
+        params["clause_paths"] = list(scope.clause_paths)
+
+    return f"{prefix} " + " AND ".join(conditions), params
+
+
 # pgvector 기반 저장소.
 #
 # FileVectorRepository와 같은 인터페이스를 구현하므로, 이 클래스를 쓰도록 바꿔도
 # rag_service와 라우터는 수정할 필요가 없다.
 class PgVectorRepository:
-    def __init__(self, dsn: str) -> None:
+    def __init__(
+        self,
+        dsn: str,
+        minconn: int = 1,
+        maxconn: int = 10,
+        acquire_timeout: float = 10.0,
+    ) -> None:
         self._dsn = dsn
+        self._minconn = minconn
+        self._maxconn = maxconn
+        self._pool: pool.ThreadedConnectionPool | None = None
+        # 풀 생성은 여러 요청이 동시에 들어와도 한 번만 일어나야 한다
+        self._lock = threading.Lock()
+
+        # 동시 사용 수를 풀 크기로 제한한다.
+        #
+        # psycopg2의 풀은 연결이 다 나가 있으면 기다리지 않고 PoolError를 던진다.
+        # 그대로 두면 동시 요청이 풀 크기를 넘는 순간 사용자에게 500이 나가는데,
+        # 이건 매번 새 연결을 열던 이전 방식보다 나쁘다. 실측에서 12스레드로
+        # 30회를 던지자 바로 "connection pool exhausted"가 났다.
+        #
+        # 세마포어로 앞에서 막으면 초과분은 연결이 반납될 때까지 기다린다.
+        # 조금 느려지는 것이 실패하는 것보다 낫다.
+        self._slots = threading.Semaphore(maxconn)
+        self._acquire_timeout = acquire_timeout
+
+    # 연결 풀.
+    #
+    # 이전에는 질의마다 psycopg2.connect로 새 연결을 열었다. TCP 핸드셰이크와
+    # 인증에 매번 수십 밀리초가 들고, 동시 사용자가 늘면 RDS의 max_connections를
+    # 밀어붙인다. 하이브리드 검색은 한 질문에 연결을 3번(벡터·키워드·면책) 여니
+    # 부담이 그만큼 곱해진다.
+    #
+    # ThreadedConnectionPool을 쓰는 이유는 FastAPI가 동기 엔드포인트를 스레드풀에서
+    # 돌리기 때문이다. SimpleConnectionPool은 스레드 안전하지 않다.
+    #
+    # 지연 생성한다. 기동 시점에 만들면 DB가 아직 안 떴을 때 앱이 뜨지 못하고,
+    # DATABASE_URL만 설정된 채 파일 저장소로 개발하는 경우도 막힌다.
+    def _get_pool(self) -> "pool.ThreadedConnectionPool":
+        if self._pool is None:
+            with self._lock:
+                if self._pool is None:
+                    self._pool = pool.ThreadedConnectionPool(
+                        self._minconn, self._maxconn, self._dsn
+                    )
+                    logger.info(
+                        "DB 연결 풀 생성 (최소 %d / 최대 %d)", self._minconn, self._maxconn
+                    )
+        return self._pool
 
     @contextmanager
     def _cursor(self, commit: bool = False):
-        connection = psycopg2.connect(self._dsn)
+        connection_pool = self._get_pool()
+
+        # 빈 자리가 날 때까지 기다린다. 무한정 기다리면 요청이 쌓여 서버가 멈춘
+        # 것처럼 보이므로 시간을 정해두고, 넘으면 원인을 알 수 있는 예외를 낸다.
+        if not self._slots.acquire(timeout=self._acquire_timeout):
+            raise TimeoutError(
+                f"DB 연결을 {self._acquire_timeout}초 안에 얻지 못했습니다. "
+                f"동시 요청이 풀 크기({self._maxconn})를 넘고 있습니다."
+            )
+
+        connection = connection_pool.getconn()
         # vector 타입은 확장이 정의한 것이라 연결마다 등록해야 한다.
-        # 등록하면 파이썬 리스트를 그대로 넣고 읽을 수 있다.
+        # 풀에서 재사용되는 연결에도 매번 등록해도 무해하다.
         register_vector(connection)
         try:
             with connection.cursor() as cursor:
                 yield cursor
             if commit:
                 connection.commit()
+        except Exception:
+            # 롤백하지 않고 풀에 되돌리면, 다음 사용자가 실패한 트랜잭션 상태의
+            # 연결을 받아 "current transaction is aborted"로 연쇄 실패한다.
+            connection.rollback()
+            raise
         finally:
-            connection.close()
+            connection_pool.putconn(connection)
+            self._slots.release()
+
+    def close(self) -> None:
+        """앱 종료 시 풀을 정리한다. 안 닫으면 DB 쪽에 유휴 연결이 남는다."""
+        if self._pool is not None:
+            self._pool.closeall()
+            self._pool = None
+            logger.info("DB 연결 풀 정리 완료")
 
     # ── 색인 ─────────────────────────────────────────────────
 
@@ -167,14 +279,14 @@ class PgVectorRepository:
     def search(
         self,
         query_vector: list[float],
-        policy_id: str | None = None,
+        scope: SearchScope | None = None,
         top_k: int = 8,
     ) -> list[ChunkHit]:
-        scope = "AND c.policy_id = %(policy_id)s" if policy_id else ""
-        sql = SEARCH_SQL.format(scope=scope)
+        condition, params = _scope_condition(scope, prefix="AND")
+        sql = SEARCH_SQL.format(scope=condition)
 
         with self._cursor() as cursor:
-            cursor.execute(sql, {"vector": query_vector, "policy_id": policy_id, "top_k": top_k})
+            cursor.execute(sql, {"vector": query_vector, "top_k": top_k, **params})
             rows = cursor.fetchall()
 
         return [self._to_hit(row) for row in rows]
@@ -188,14 +300,14 @@ class PgVectorRepository:
     def search_text(
         self,
         query: str,
-        policy_id: str | None = None,
+        scope: SearchScope | None = None,
         top_k: int = 8,
     ) -> list[ChunkHit]:
-        scope = "WHERE c.policy_id = %(policy_id)s" if policy_id else ""
-        sql = TEXT_SQL.format(scope=scope)
+        condition, params = _scope_condition(scope, prefix="WHERE")
+        sql = TEXT_SQL.format(scope=condition)
 
         with self._cursor() as cursor:
-            cursor.execute(sql, {"policy_id": policy_id})
+            cursor.execute(sql, params)
             rows = cursor.fetchall()
 
         if not rows:
@@ -251,7 +363,9 @@ class PgVectorRepository:
             page_start=page_start or 0,
             page_end=page_end or 0,
             section_title=section_title or "",
-            coverage_type=clause_type,
+            # DB의 COVERAGE를 내부 included로 되돌린다. 그대로 쓰면 프롬프트의
+            # 조항 라벨과 면책 짝짓기 로직이 어긋난다.
+            coverage_type=db_enums.clause_type_to_internal(clause_type),
             text=content,
             matched_category=coverage_category,
             related_chunk_id=str(related_id) if related_id else None,

@@ -1,0 +1,50 @@
+[
+  {
+    "_설명": "증권 1장 = 이 배열의 원소 1개. 이 파일을 certificate_gold.json으로 복사해서 채운다.",
+    "_정답_작성_규칙": [
+      "증권의 보장내용 표에 인쇄된 것만 옮겨 적는다. 약관을 보고 채우지 않는다.",
+      "표에 있는 담보는 빠짐없이 적는다. 빠뜨리면 시스템이 맞게 뽑아도 오답(FP)으로 채점된다.",
+      "limit_amount는 원 단위 정수. '1,000만원'이면 10000000. 표에 금액이 없으면 null.",
+      "covered는 그 담보에 가입했는지. 표에 있으면 대개 true, '미가입'으로 표시됐으면 false.",
+      "category는 config/standard_categories.json의 8개 중 하나. 애매하면 null로 두고 name만 적는다.",
+      "정답을 다 채운 뒤 커밋한다. 채점 결과를 보고 정답을 고치면 그 수치는 의미가 없다."
+    ],
+
+    "certificate_id": "cert_001",
+    "insurer": "DB손해보험",
+    "product_name": "프로미 해외여행보험Ⅰ",
+    "terms_ref": "db_travel",
+    "note": "실제 증권이면 이름·증권번호는 지우고 저장할 것",
+
+    "coverages": [
+      {
+        "name": "해외여행중 상해의료비",
+        "category": "medical_expense",
+        "limit_amount": 30000000,
+        "currency": "KRW",
+        "covered": true
+      },
+      {
+        "name": "해외여행중 휴대품손해(분실제외)",
+        "category": "baggage",
+        "limit_amount": 2000000,
+        "currency": "KRW",
+        "covered": true
+      },
+      {
+        "name": "해외여행중 배상책임",
+        "category": "liability",
+        "limit_amount": 10000000,
+        "currency": "KRW",
+        "covered": true
+      },
+      {
+        "name": "항공기 및 수하물 지연비용",
+        "category": "flight_delay",
+        "limit_amount": null,
+        "currency": "KRW",
+        "covered": true
+      }
+    ]
+  }
+]

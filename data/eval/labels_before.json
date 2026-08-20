@@ -1,0 +1,117 @@
+{
+  "note": "키워드 규칙 (개선 전) / 정답 검수 완료: Claude 초안 100건 전건 승인",
+  "chunks_dir": "C:\\Users\\HOME\\Documents\\GitHub\\polight-ai\\data\\chunks",
+  "gold": "C:\\Users\\HOME\\Documents\\GitHub\\polight-ai\\data\\eval\\label_gold.csv",
+  "total": 100,
+  "exact_accuracy": 0.7,
+  "over_label": 0.23,
+  "under_label": 0.07,
+  "wrong_category": 0.0,
+  "macro_f1": 0.742786301748566,
+  "per_category": {
+    "baggage": {
+      "tp": 4,
+      "fp": 4,
+      "fn": 1,
+      "precision": 0.5,
+      "recall": 0.8,
+      "f1": 0.6153846153846154
+    },
+    "death_disability": {
+      "tp": 7,
+      "fp": 2,
+      "fn": 4,
+      "precision": 0.7777777777777778,
+      "recall": 0.6363636363636364,
+      "f1": 0.7000000000000001
+    },
+    "emergency_transport": {
+      "tp": 2,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "flight_delay": {
+      "tp": 2,
+      "fp": 1,
+      "fn": 0,
+      "precision": 0.6666666666666666,
+      "recall": 1.0,
+      "f1": 0.8
+    },
+    "liability": {
+      "tp": 5,
+      "fp": 6,
+      "fn": 0,
+      "precision": 0.45454545454545453,
+      "recall": 1.0,
+      "f1": 0.625
+    },
+    "medical_expense": {
+      "tp": 21,
+      "fp": 10,
+      "fn": 1,
+      "precision": 0.6774193548387096,
+      "recall": 0.9545454545454546,
+      "f1": 0.7924528301886793
+    },
+    "trip_cancellation": {
+      "tp": 1,
+      "fp": 0,
+      "fn": 1,
+      "precision": 1.0,
+      "recall": 0.5,
+      "f1": 0.6666666666666666
+    }
+  },
+  "confusion": [
+    {
+      "gold": "null",
+      "auto": "medical_expense",
+      "n": 10
+    },
+    {
+      "gold": "null",
+      "auto": "liability",
+      "n": 6
+    },
+    {
+      "gold": "death_disability",
+      "auto": "null",
+      "n": 4
+    },
+    {
+      "gold": "null",
+      "auto": "baggage",
+      "n": 4
+    },
+    {
+      "gold": "null",
+      "auto": "death_disability",
+      "n": 2
+    },
+    {
+      "gold": "medical_expense",
+      "auto": "null",
+      "n": 1
+    },
+    {
+      "gold": "trip_cancellation",
+      "auto": "null",
+      "n": 1
+    },
+    {
+      "gold": "null",
+      "auto": "flight_delay",
+      "n": 1
+    },
+    {
+      "gold": "baggage",
+      "auto": "null",
+      "n": 1
+    }
+  ],
+  "git_commit": "5c3e000"
+}

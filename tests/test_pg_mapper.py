@@ -95,10 +95,31 @@ def test_field_names_are_mapped_to_ddl():
     row = row_to_dict(rows[0])
 
     assert row["content"] == "회사는 보상합니다."      # text
-    assert row["clause_type"] == "included"           # coverage_type
     assert row["coverage_category"] == "baggage"      # matched_category
     assert row["clause_path"] == "해외여행중 휴대품손해 특별약관"
-    assert row["source_content_type"] == "paragraph"
+
+
+# enum 컬럼에는 CHECK 제약이 걸려 있어 우리 내부 값(included/paragraph)을 그대로
+# 넣으면 INSERT가 실패한다. 경계에서 DB 허용값으로 번역되는지 확인한다.
+def test_enum_values_are_translated_for_db():
+    rows, _ = build([
+        make_chunk("a"),
+        make_chunk("b", coverage_type="excluded", source_content_type="table"),
+        make_chunk("c", coverage_type="procedure", source_content_type="heading"),
+    ])
+    got = [(row_to_dict(r)["clause_type"], row_to_dict(r)["source_content_type"]) for r in rows]
+
+    assert got == [("COVERAGE", "TEXT"), ("EXCLUSION", "TABLE"), ("PROCEDURE", "TEXT")]
+
+
+# 모르는 값이 와도 예외를 내면 안 된다. 값 하나 때문에 분석 전체가 실패하면
+# 어렵게 만든 policy_chunks까지 무의미해진다.
+def test_unknown_enum_falls_back_instead_of_raising():
+    rows, _ = build([make_chunk("a", coverage_type="정체불명", source_content_type="정체불명")])
+    row = row_to_dict(rows[0])
+
+    assert row["clause_type"] == "GENERAL"
+    assert row["source_content_type"] == "TEXT"
 
 
 # DDL에 DEFAULT가 없는 NOT NULL 컬럼들.
@@ -119,7 +140,7 @@ def test_missing_source_content_type_falls_back():
 
     rows, _ = build([chunk])
 
-    assert row_to_dict(rows[0])["source_content_type"] == "paragraph"
+    assert row_to_dict(rows[0])["source_content_type"] == "TEXT"
 
 
 # VARCHAR 길이를 넘으면 INSERT가 실패하므로 미리 자른다.

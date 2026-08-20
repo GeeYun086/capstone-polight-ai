@@ -1,0 +1,261 @@
+{
+  "per_question": [
+    {
+      "id": "Q01",
+      "type": "exclusion",
+      "gold_density": 10,
+      "rank": 1,
+      "phrasing": "casual",
+      "multiturn": false
+    },
+    {
+      "id": "Q02",
+      "type": "coverage",
+      "gold_density": 1,
+      "rank": 1,
+      "phrasing": "casual",
+      "multiturn": false
+    },
+    {
+      "id": "Q03",
+      "type": "exclusion",
+      "gold_density": 9,
+      "rank": 1,
+      "phrasing": "casual",
+      "multiturn": false
+    },
+    {
+      "id": "Q04",
+      "type": "procedure",
+      "gold_density": 4,
+      "rank": 1,
+      "phrasing": "casual",
+      "multiturn": false
+    },
+    {
+      "id": "Q05",
+      "type": "limit",
+      "gold_density": 1,
+      "rank": 1,
+      "phrasing": "casual",
+      "multiturn": false
+    },
+    {
+      "id": "Q06",
+      "type": "coverage",
+      "gold_density": 3,
+      "rank": 3,
+      "phrasing": "casual",
+      "multiturn": false
+    },
+    {
+      "id": "Q07",
+      "type": "coverage",
+      "gold_density": 1,
+      "rank": 5,
+      "phrasing": "casual",
+      "multiturn": false
+    },
+    {
+      "id": "Q08",
+      "type": "coverage",
+      "gold_density": 1,
+      "rank": 1,
+      "phrasing": "casual",
+      "multiturn": false
+    },
+    {
+      "id": "Q09",
+      "type": "exclusion",
+      "gold_density": 12,
+      "rank": 1,
+      "phrasing": "casual",
+      "multiturn": false
+    },
+    {
+      "id": "Q10",
+      "type": "coverage",
+      "gold_density": 1,
+      "rank": 1,
+      "phrasing": "casual",
+      "multiturn": false
+    },
+    {
+      "id": "Q11",
+      "type": "procedure",
+      "gold_density": 3,
+      "rank": 4,
+      "phrasing": "casual",
+      "multiturn": false
+    },
+    {
+      "id": "Q12",
+      "type": "procedure",
+      "gold_density": 2,
+      "rank": 2,
+      "phrasing": "casual",
+      "multiturn": false
+    },
+    {
+      "id": "P1F",
+      "type": "limit",
+      "gold_density": 1,
+      "rank": 1,
+      "phrasing": "formal",
+      "multiturn": false
+    },
+    {
+      "id": "P1C",
+      "type": "limit",
+      "gold_density": 1,
+      "rank": 1,
+      "phrasing": "casual",
+      "multiturn": false
+    },
+    {
+      "id": "P2F",
+      "type": "coverage",
+      "gold_density": 1,
+      "rank": 1,
+      "phrasing": "formal",
+      "multiturn": false
+    },
+    {
+      "id": "P2C",
+      "type": "coverage",
+      "gold_density": 1,
+      "rank": 1,
+      "phrasing": "casual",
+      "multiturn": false
+    },
+    {
+      "id": "P3F",
+      "type": "coverage",
+      "gold_density": 1,
+      "rank": 1,
+      "phrasing": "formal",
+      "multiturn": false
+    },
+    {
+      "id": "P3C",
+      "type": "coverage",
+      "gold_density": 1,
+      "rank": 1,
+      "phrasing": "casual",
+      "multiturn": false
+    },
+    {
+      "id": "P4F",
+      "type": "limit",
+      "gold_density": 2,
+      "rank": 1,
+      "phrasing": "formal",
+      "multiturn": false
+    },
+    {
+      "id": "P4C",
+      "type": "limit",
+      "gold_density": 2,
+      "rank": null,
+      "phrasing": "casual",
+      "multiturn": false
+    },
+    {
+      "id": "P5F",
+      "type": "procedure",
+      "gold_density": 2,
+      "rank": 1,
+      "phrasing": "formal",
+      "multiturn": false
+    },
+    {
+      "id": "P5C",
+      "type": "procedure",
+      "gold_density": 2,
+      "rank": 7,
+      "phrasing": "casual",
+      "multiturn": false
+    },
+    {
+      "id": "M1",
+      "type": "limit",
+      "gold_density": 2,
+      "rank": null,
+      "phrasing": "casual",
+      "multiturn": true
+    },
+    {
+      "id": "M2",
+      "type": "exclusion",
+      "gold_density": 1,
+      "rank": null,
+      "phrasing": "casual",
+      "multiturn": true
+    },
+    {
+      "id": "M3",
+      "type": "procedure",
+      "gold_density": 2,
+      "rank": 2,
+      "phrasing": "casual",
+      "multiturn": true
+    }
+  ],
+  "groups": {
+    "고유 조항 (gold 1~2개)": {
+      "n": 19,
+      "hit": 16,
+      "recall": 0.8421052631578947,
+      "mrr": 0.7022556390977444
+    },
+    "반복 조항 (gold 3개+)": {
+      "n": 6,
+      "hit": 6,
+      "recall": 1.0,
+      "mrr": 0.7638888888888888
+    },
+    "약관 용어": {
+      "n": 5,
+      "hit": 5,
+      "recall": 1.0,
+      "mrr": 1.0
+    },
+    "일상 표현": {
+      "n": 5,
+      "hit": 4,
+      "recall": 0.8,
+      "mrr": 0.6285714285714286
+    },
+    "멀티턴 (재작성 후)": {
+      "n": 3,
+      "hit": 1,
+      "recall": 0.3333333333333333,
+      "mrr": 0.16666666666666666
+    }
+  },
+  "total": 25,
+  "mode": {
+    "mmr": true,
+    "hybrid": true,
+    "top_k": 8
+  },
+  "recall@1": 0.64,
+  "recall@3": 0.76,
+  "recall@5": 0.84,
+  "recall@8": 0.88,
+  "mrr": 0.717047619047619,
+  "missed": [
+    "P4C",
+    "M1",
+    "M2"
+  ],
+  "meta": {
+    "note": "약관 기반 (증권 전환 전) baseline",
+    "questions": "C:\\Users\\HOME\\Documents\\GitHub\\polight-ai\\data\\eval\\questions.json",
+    "chunks_dir": "C:\\Users\\HOME\\Documents\\GitHub\\polight-ai\\data\\chunks",
+    "embeddings_dir": "C:\\Users\\HOME\\Documents\\GitHub\\polight-ai\\data\\embeddings",
+    "policy_id": "db_travel",
+    "embedding_provider": "upstage-1536",
+    "git_commit": "5c3e000"
+  }
+}

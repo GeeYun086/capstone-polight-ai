@@ -1,0 +1,71 @@
+{
+  "note": "시스템 A (약관 기반) baseline / 2026-08-10 추출 기록 재사용, 재실행 없음",
+  "payload_dir": "data/eval/pred_terms",
+  "certificates": 5,
+  "detection": {
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "tp": 0,
+    "fp": 30,
+    "fn": 0
+  },
+  "limit_amount_accuracy": 0.0,
+  "coverage_status_accuracy": 0.0,
+  "limit_label_fill_rate": 0.26666666666666666,
+  "polluted_fields": 5,
+  "quote_hallucination_rate": 0.13636363636363635,
+  "per_certificate": [
+    {
+      "certificate_id": "claude-opus",
+      "gold_n": 0,
+      "pred_n": 7,
+      "limit_label_fill_rate": 0.2857142857142857,
+      "polluted_fields": 0,
+      "quote_hallucination_rate": 0.037037037037037035,
+      "quotes": 54,
+      "limit_amount_filled": 0
+    },
+    {
+      "certificate_id": "gemini-flash",
+      "gold_n": 0,
+      "pred_n": 3,
+      "limit_label_fill_rate": 0.3333333333333333,
+      "polluted_fields": 0,
+      "quote_hallucination_rate": 0.06666666666666667,
+      "quotes": 15,
+      "limit_amount_filled": 0
+    },
+    {
+      "certificate_id": "openai-41",
+      "gold_n": 0,
+      "pred_n": 6,
+      "limit_label_fill_rate": 0.16666666666666666,
+      "polluted_fields": 0,
+      "quote_hallucination_rate": 0.07692307692307693,
+      "quotes": 26,
+      "limit_amount_filled": 1
+    },
+    {
+      "certificate_id": "openai-41mini",
+      "gold_n": 0,
+      "pred_n": 7,
+      "limit_label_fill_rate": 0.14285714285714285,
+      "polluted_fields": 0,
+      "quote_hallucination_rate": 0.42105263157894735,
+      "quotes": 38,
+      "limit_amount_filled": 1
+    },
+    {
+      "certificate_id": "openai-mini",
+      "gold_n": 0,
+      "pred_n": 7,
+      "limit_label_fill_rate": 0.42857142857142855,
+      "polluted_fields": 5,
+      "quote_hallucination_rate": 0.0,
+      "quotes": 21,
+      "limit_amount_filled": 1
+    }
+  ],
+  "git_commit": "5c3e000"
+}

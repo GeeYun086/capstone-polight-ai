@@ -1,0 +1,122 @@
+[
+  {
+    "id": "C01",
+    "type": "limit",
+    "question": "휴대품이 도난당하면 얼마까지 보상받을 수 있나요?",
+    "gold": [{ "contains": "1개 또는 1조, 1쌍에 대한 제1항의 지급할 보험금은 200,000원을 한도로" }],
+    "expected_points": ["1개당 20만원 한도", "자기부담금 공제"],
+    "coverage": "휴대품손해"
+  },
+  {
+    "id": "C02",
+    "type": "coverage",
+    "question": "휴대품 중에 보상 안 되는 물건도 있나요?",
+    "gold": [{ "contains": "아래의 물건은 보험의 목적에 포함되지 않습니다" }],
+    "expected_points": ["통화·유가증권·신용카드 제외", "여권 제외"],
+    "coverage": "휴대품손해"
+  },
+  {
+    "id": "C03",
+    "type": "coverage",
+    "question": "항공기가 지연되면 몇 시간부터 보상되나요?",
+    "gold": [{ "contains": "예정된 도착시간으로부터 6시간이내에 도착지" }],
+    "expected_points": ["수하물 6시간", "항공편 4시간"],
+    "coverage": "항공기/수하물 지연"
+  },
+  {
+    "id": "C04",
+    "type": "coverage",
+    "question": "비행기가 납치되면 하루에 얼마씩 나와요?",
+    "gold": [{ "contains": "매일 70,000원씩 지급하여 드립니다" }],
+    "expected_points": ["1일 7만원", "20일 한도"],
+    "coverage": "항공기 납치"
+  },
+  {
+    "id": "C05",
+    "type": "coverage",
+    "question": "여행 중에 조난당하면 수색 비용도 보상해주나요?",
+    "gold": [{ "contains": "조난당한 피보험자를 수색, 구조 또는 이송" }],
+    "expected_points": ["수색구조비용 보상"],
+    "coverage": "긴급구조/송환"
+  },
+  {
+    "id": "C06",
+    "type": "procedure",
+    "question": "해외에서 여권을 잃어버리면 어떻게 해야 보상받나요?",
+    "gold": [{ "contains": "재외공관에 여권분실신고를 하고 긴급여권을 발급받은 경우" }],
+    "expected_points": ["재외공관 분실신고", "긴급여권 발급"],
+    "coverage": "여권분실"
+  },
+  {
+    "id": "C07",
+    "type": "coverage",
+    "question": "음식 잘못 먹어서 식중독으로 입원하면 보상되나요?",
+    "gold": [{ "contains": "2일 이상 입원하여 치료를 받은 경우" }],
+    "expected_points": ["2일 이상 입원 요건", "외래진료만은 제외"],
+    "coverage": "식중독"
+  },
+  {
+    "id": "C08",
+    "type": "coverage",
+    "question": "여행 중에 사고나서 일정 취소하고 돌아오면 숙박비 보상되나요?",
+    "gold": [{ "contains": "2박 이내의 숙박비용을 보험가입금액 한도로" }],
+    "expected_points": ["2박 이내 숙박비", "추가 항공운임"],
+    "coverage": "긴급귀국"
+  },
+  {
+    "id": "C09",
+    "type": "limit",
+    "question": "배상책임은 자기부담금이 어떻게 되나요?",
+    "gold": [{ "contains": "보상한도액과 자기부담금은 각각 보험증권에 기재된 금액" }],
+    "expected_points": ["증권 기재 금액", "자기부담금 공제"],
+    "coverage": "배상책임"
+  },
+  {
+    "id": "C10",
+    "type": "coverage",
+    "question": "다른 사람 물건을 망가뜨렸을 때 소송당하면 변호사 비용도 나오나요?",
+    "gold": [{ "contains": "손해배상책임을 지는 사고가 생긴 때에는 피해자는" }],
+    "expected_points": ["회사가 피해자에게 직접 지급 가능"],
+    "coverage": "배상책임"
+  },
+  {
+    "id": "C11",
+    "type": "procedure",
+    "question": "보험금 청구하려면 어디에 먼저 알려야 하나요?",
+    "gold": [{ "contains": "보험금 지급사유의 발생을 안 때에는 지체없이 그 사실을 회사에 알려야" }],
+    "expected_points": ["지체없이 통지"],
+    "coverage": "공통"
+  },
+  {
+    "id": "C12",
+    "type": "coverage",
+    "question": "후유장해는 언제 기준으로 판정하나요?",
+    "gold": [{ "contains": "180일이 되는 날의 의사 진단에 기초하여" }],
+    "expected_points": ["180일 기준", "장해지급률"],
+    "coverage": "사망/후유장해"
+  },
+  {
+    "id": "C13",
+    "type": "coverage",
+    "question": "해외에서 병원 갔을 때 실제 낸 돈을 다 돌려받나요?",
+    "gold": [{ "contains": "보장종목별 보상내용" }],
+    "expected_points": ["보장종목별 기준", "본인부담 의료비"],
+    "coverage": "해외의료비"
+  },
+  {
+    "id": "C14",
+    "type": "coverage",
+    "question": "전염병에 걸려서 진단받으면 보험금 나와요?",
+    "gold": [{ "contains": "특정전염병 진단비" }],
+    "expected_points": ["특정전염병 진단 시 지급"],
+    "coverage": "특정전염병"
+  },
+  {
+    "id": "C15",
+    "type": "exclusion",
+    "question": "여권을 그냥 잃어버린 것도 보상되나요, 도난만 되나요?",
+    "gold": [{ "contains": "여권을 분실하거나 도난당" }],
+    "expected_points": ["분실·도난 모두 대상", "재외공관 신고 필요"],
+    "coverage": "여권분실"
+  }
+]

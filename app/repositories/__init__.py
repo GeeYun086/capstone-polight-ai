@@ -20,6 +20,10 @@ def get_vector_repository() -> VectorRepository:
         # 인터페이스가 같으므로 이 분기만 바뀌고 rag_service·라우터는 수정하지 않는다.
         from app.repositories.pg_repository import PgVectorRepository
 
-        return PgVectorRepository(settings.database_url)
+        return PgVectorRepository(
+            settings.database_url,
+            minconn=settings.db_pool_min,
+            maxconn=settings.db_pool_max,
+        )
 
     return FileVectorRepository()

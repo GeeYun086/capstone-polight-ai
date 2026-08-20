@@ -3,12 +3,13 @@ import logging
 from openai import OpenAI
 
 from app.core.config import get_settings
-from app.repositories.base import ChunkHit, VectorRepository
+from app.repositories.base import ChunkHit, SearchScope, VectorRepository
 from app.schemas.rag import RagQueryRequest, RagQueryResponse, SourceChunk
 from app.services.answer_providers import generate
 from app.services.bm25 import reciprocal_rank_fusion
 from app.services.embedding_service import embed_query
 from app.services.prompt_builder import SYSTEM_PROMPT, build_user_message
+from app.services.query_rewriter import rewrite
 from app.services.reranker import mmr_select
 
 logger = logging.getLogger(__name__)
@@ -30,11 +31,11 @@ def hybrid_search(
     repository: VectorRepository,
     query: str,
     query_vector: list[float],
-    policy_id: str | None,
+    scope: SearchScope | None,
     top_k: int,
 ) -> list[ChunkHit]:
-    dense = repository.search(query_vector, policy_id=policy_id, top_k=top_k)
-    sparse = repository.search_text(query, policy_id=policy_id, top_k=top_k)
+    dense = repository.search(query_vector, scope=scope, top_k=top_k)
+    sparse = repository.search_text(query, scope=scope, top_k=top_k)
 
     if not sparse:
         return dense
@@ -137,8 +138,9 @@ def _call_llm(user_message: str, client: OpenAI | None = None, model: str | None
 
 # POST /internal/rag/query 진입점 (파이프라인 B의 ⑤~⑩).
 #
-# contract_info(가입 담보)와 history(대화 맥락)는 아직 RagQueryRequest에 필드가 없어
-# 항상 None으로 전달된다. Spring과 스키마 합의가 끝나면 값만 채우면 된다.
+# history는 요청에서 받는다. Spring이 chat_messages에서 최근 3턴을 잘라 실어 보낸다.
+# contract_info(가입 담보)는 아직 자리만 열려 있다. 증권 정보를 수집하는 화면이 없어
+# policies 테이블에 데이터가 없기 때문이며, MVP 범위 밖으로 합의됐다.
 def answer_question(
     request: RagQueryRequest,
     repository: VectorRepository,
@@ -148,28 +150,87 @@ def answer_question(
 ) -> RagQueryResponse:
     settings = get_settings()
 
-    query_vector = embed_query(request.question, client=client)
+    # 인자로 받은 history가 있으면 그것을 쓰고(테스트용), 없으면 요청에 실린 것을 쓴다
+    turns = history if history is not None else [
+        {"role": "user" if t.sender == "USER" else "assistant", "content": t.content}
+        for t in request.history
+    ]
+
+    # 검색에 쓸 질문과 답변에 쓸 질문을 나눈다.
+    #
+    # "그럼 얼마까지 나와요?"로는 검색이 안 된다. 항공기도 지연도 없는 문장이라
+    # 벡터 검색이 엉뚱한 조항을 가져오고, 이력을 프롬프트에 넣어도 근거가 이미 틀렸다.
+    # 검색 전에 "항공기 지연 보상 한도는?"처럼 독립적인 문장으로 바꾼다.
+    #
+    # 다만 LLM에게는 원문을 그대로 준다. 재작성된 문장은 검색용으로 다듬은 것이라
+    # 사용자의 말투와 뉘앙스가 지워져 있고, 답변이 질문과 겉도는 느낌을 준다.
+    search_query = rewrite(request.question, turns)
+
+    query_vector = embed_query(search_query, client=client)
 
     # 후보를 top_k보다 넓게 뽑은 뒤 MMR로 줄인다.
     # 좁게 뽑으면 반복되는 표준 조항이 자리를 다 차지해 정답이 밀려난다.
-    candidates = hybrid_search(
-        repository,
-        request.question,
-        query_vector,
-        policy_id=request.policy_id,
-        top_k=settings.top_k * settings.mmr_candidate_multiplier,
-    )
+    pool = settings.top_k * settings.mmr_candidate_multiplier
+    base_scope = SearchScope(document_id=request.document_id, trip_id=request.trip_id)
+
+    # 증권에서 온 특약명이 있으면 그 조항들로 좁혀서 먼저 찾는다.
+    # 요청에 실려 오지 않으면(clause_paths가 없으면) 이 블록은 통째로 건너뛰고
+    # 기존과 완전히 동일하게 동작한다.
+    candidates: list[ChunkHit] = []
+    if request.clause_paths:
+        narrowed = SearchScope(
+            document_id=request.document_id,
+            trip_id=request.trip_id,
+            clause_paths=tuple(request.clause_paths),
+        )
+        candidates = hybrid_search(repository, search_query, query_vector, scope=narrowed, top_k=pool)
+
+        # 좁힌 결과에 "실제 특약 조각"이 하나도 없으면 필터를 버리고 다시 찾는다.
+        #
+        # 개수로 판정하면 안 된다. 필터는 clause_path가 빈 공통 조항(청구 절차·용어 정의·
+        # 일반 면책)을 항상 통과시키는데, db_travel 기준 그것만 34청크다. 그래서 정답이 든
+        # 특약이 통째로 배제된 상황에서도 결과 수는 늘 top_k를 넘어 폴백이 영영 발동하지
+        # 않는다. 실측에서 25문항 전부 폴백 0건이었고, 최소형 증권에서 Recall@8이
+        # 88%->48%로 떨어지는데도 안전장치가 돌지 않았다.
+        #
+        # 살아남은 특약 조각 수로 판정해야 "이 사용자의 담보에는 근거가 없다"를 감지한다.
+        clause_hits = sum(1 for c in candidates if c.clause_path)
+        if clause_hits == 0:
+            logger.info(
+                "특약 필터를 통과한 조항이 없어 전체 검색으로 되돌립니다 (특약 %d개, 후보 %d건)",
+                len(request.clause_paths), len(candidates),
+            )
+            candidates = []
+
+    if not candidates:
+        candidates = hybrid_search(repository, search_query, query_vector, scope=base_scope, top_k=pool)
 
     if not candidates:
         return RagQueryResponse(answer=NO_EVIDENCE_ANSWER, sources=[])
 
     hits = mmr_select(candidates, top_k=settings.top_k, lambda_=settings.mmr_lambda)
     hits = attach_related_chunks(hits, repository)
+
+    # 증권 담보가 실려 왔으면 프롬프트에 넣는다.
+    #
+    # 이게 증권 연동의 핵심이다. 약관에는 그 상품이 팔 수 있는 모든 특약이 있어서,
+    # 가입하지 않은 담보를 물어도 조항이 검색되고 "보상됩니다"라는 틀린 답이 나간다.
+    # 한도 금액도 약관에는 "보험가입금액을 한도로"라고만 적혀 있어 답할 수 없다.
+    #
+    # 인자로 받은 contract_info가 우선한다(테스트에서 직접 넣는 경로).
+    if contract_info is None and request.coverages:
+        contract_info = {
+            "coverages": [c.model_dump(by_alias=True) for c in request.coverages],
+            # 목록이 증권 전체인지. 이게 있어야 "목록에 없는 담보"를 미가입으로
+            # 답할지 모른다고 답할지 정해진다.
+            "complete": request.coverages_complete,
+        }
+
     user_message = build_user_message(
         request.question,
         hits,
         contract_info=contract_info,
-        history=history,
+        history=turns,
     )
     answer = _call_llm(user_message, client=client)
 

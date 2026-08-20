@@ -8,7 +8,7 @@ QUERY_URL = "/internal/rag/query"
 VALID_BODY = {
     "userId": "user-1",
     "tripId": "trip-1",
-    "policyId": "doc-1",
+    "documentId": "doc-1",
     "question": "항공편이 5시간 지연되면 보상되나요?",
 }
 
@@ -36,7 +36,10 @@ def test_response_uses_camel_case(client, fake_repo):
 
     assert response.status_code == 200
     body = response.json()
-    assert set(body) == {"answer", "sources"}
+    # responseType은 chat_messages.response_type(NOT NULL)에 그대로 들어간다.
+    # 빠지면 Spring이 메시지를 저장할 수 없다.
+    assert set(body) == {"answer", "responseType", "sources"}
+    assert body["responseType"] == "TEXT"
     assert set(body["sources"][0]) == {"chunkId", "documentId", "page", "quote"}
 
 
@@ -56,8 +59,11 @@ def test_no_evidence_returns_explicit_message(client, fake_repo):
     assert body["answer"] == rag_service.NO_EVIDENCE_ANSWER
 
 
-# policy_id로 스코프가 걸려야 한다. 다른 계약의 약관이 섞이면 오답이 된다.
-def test_search_is_scoped_by_policy_id(client, fake_repo):
+# document_id로 스코프가 걸려야 한다. 다른 약관이 섞이면 오답이 된다.
+#
+# policy_id를 쓰지 않는 이유: 백엔드에 policies 행을 만드는 코드가 없어 항상 null이고,
+# SQL에서 "= NULL"은 아무 행과도 일치하지 않아 검색이 통째로 0건이 된다.
+def test_search_is_scoped_by_document_id(client, fake_repo):
     fake_repo.hits = [
         make_hit("mine", document_id="doc-1"),
         make_hit("other", document_id="doc-2"),

@@ -169,6 +169,91 @@ _DISPATCH = {
 }
 
 
+def _json_openai(provider: AnswerProvider, system: str, user: str) -> str:
+    from openai import OpenAI
+
+    extra = {"temperature": 0} if provider.supports_temperature else {}
+    response = OpenAI(api_key=_api_key(provider)).chat.completions.create(
+        model=provider.model,
+        messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
+        response_format={"type": "json_object"},
+        **extra,
+    )
+    return (response.choices[0].message.content or "{}").strip()
+
+
+def _json_anthropic(provider: AnswerProvider, system: str, user: str) -> str:
+    import anthropic
+
+    client = anthropic.Anthropic(api_key=_api_key(provider))
+    # OpenAI의 response_format 같은 스위치는 없다. 프롬프트로 지시하고
+    # 코드 펜스를 벗겨 파싱한다. JSON을 얼마나 안정적으로 내는지 자체가
+    # 비교 항목이므로, 스키마를 강제하지 않고 그대로 재는 편이 낫다.
+    #
+    # 추출은 비동기 배치라 지연이 덜 중요하다. 답변용과 달리 effort를 올린다.
+    response = client.messages.create(
+        model=provider.model, max_tokens=8000, system=system,
+        thinking={"type": "adaptive"}, output_config={"effort": "medium"},
+        messages=[{"role": "user", "content": user}],
+    )
+    if response.stop_reason == "refusal":
+        raise RuntimeError(f"Claude가 응답을 거부했습니다: {response.stop_details}")
+    return "".join(b.text for b in response.content if b.type == "text").strip()
+
+
+def _json_google(provider: AnswerProvider, system: str, user: str) -> str:
+    from google import genai
+    from google.genai import types
+
+    # Client를 반드시 변수에 담는다. genai.Client(...).models.generate_content(...)처럼
+    # 체인으로 쓰면 Client에 남는 참조가 없어 호출 도중 GC가 내부 연결을 닫고
+    # "Cannot send a request, as the client has been closed"로 실패한다.
+    client = genai.Client(api_key=_api_key(provider))
+    response = client.models.generate_content(
+        model=provider.model, contents=user,
+        config=types.GenerateContentConfig(
+            system_instruction=system, temperature=0,
+            response_mime_type="application/json",
+        ),
+    )
+    return (response.text or "{}").strip()
+
+
+_JSON_DISPATCH = {
+    "openai": _json_openai,
+    "anthropic": _json_anthropic,
+    "google": _json_google,
+}
+
+
+def strip_code_fence(text: str) -> str:
+    """```json ... ``` 로 감싸 오는 경우를 벗긴다.
+
+    OpenAI와 Gemini는 JSON 전용 모드가 있어 순수 JSON이 오지만,
+    Anthropic은 프롬프트 지시에 의존하므로 코드 펜스가 붙어 올 수 있다.
+    """
+    stripped = text.strip()
+    if not stripped.startswith("```"):
+        return stripped
+    body = stripped.split("\n", 1)[1] if "\n" in stripped else ""
+    return body.rsplit("```", 1)[0].strip()
+
+
+def generate_json(
+    system: str,
+    user: str,
+    provider_name: str | None = None,
+) -> tuple[str, float]:
+    """JSON 문자열과 소요 시간을 돌려준다. 파싱은 호출부가 한다.
+
+    파싱 실패 자체가 모델 비교 항목이라 여기서 예외로 바꾸지 않는다.
+    """
+    provider = resolve(provider_name)
+    started = time.time()
+    raw = _JSON_DISPATCH[provider.vendor](provider, system, user)
+    return strip_code_fence(raw), time.time() - started
+
+
 def generate(
     system: str,
     user: str,

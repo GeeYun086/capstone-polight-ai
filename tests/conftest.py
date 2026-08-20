@@ -18,15 +18,15 @@ class FakeVectorRepository:
         self.saved.append((chunks, embeddings))
         self.saved_context = (analysis_result_id, scope)
 
-    def search(self, query_vector, policy_id=None, top_k=8):
-        if policy_id is None:
+    def search(self, query_vector, scope=None, top_k=8):
+        if scope is None or scope.is_empty():
             return self.hits[:top_k]
-        return [h for h in self.hits if h.document_id == policy_id][:top_k]
+        return [h for h in self.hits if h.document_id == scope.document_id][:top_k]
 
     # 키워드 검색은 기본적으로 비워둔다. 비어 있으면 hybrid_search가 벡터 결과를
     # 그대로 쓰므로, 계약 테스트는 검색 방식과 무관하게 유지된다.
     # 융합 동작 자체는 test_hybrid_search.py에서 따로 검증한다.
-    def search_text(self, query, policy_id=None, top_k=8):
+    def search_text(self, query, scope=None, top_k=8):
         return self.text_hits[:top_k]
 
     def get_by_ids(self, chunk_ids):

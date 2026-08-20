@@ -162,7 +162,7 @@ def test_callback_carries_extracted_coverage_items(monkeypatch, stub_pipeline_io
     assert sent["limitAmount"] == 200000
 
 
-# sourceChunkIds는 policy_chunks.id(UUID)여야 Spring이 coverage_item_sources를
+# sources[].chunkId는 policy_chunks.id(UUID)여야 Spring이 coverage_item_sources를
 # FK로 연결할 수 있다. 저장소가 INSERT하며 만든 UUID로 치환돼야 한다.
 def test_source_chunk_ids_are_mapped_to_saved_uuids(monkeypatch, stub_pipeline_io, captured_callbacks):
     monkeypatch.setattr(analysis_service, "embed_chunks", lambda chunks: {})
@@ -189,7 +189,7 @@ def test_source_chunk_ids_are_mapped_to_saved_uuids(monkeypatch, stub_pipeline_i
     analysis_service.process_analysis(REQUEST, repository=repo)
 
     sent = captured_callbacks[0][1]["coverageItems"][0]
-    assert sent["sourceChunkIds"] == ["aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"]
+    assert [s["chunkId"] for s in sent["sources"]] == ["aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"]
 
 
 # 파이프라인이 실패하면 실패 콜백이 나가야 한다. 조용히 끝나면 Spring은 영원히 PROCESSING이다.
@@ -222,3 +222,52 @@ def test_callback_transport_failure_does_not_raise(monkeypatch):
 
     # 예외가 밖으로 새지 않아야 한다
     analysis_service.process_analysis(REQUEST, repository=FakeVectorRepository())
+
+
+# 콜백은 Spring이 파생하는 값을 보내지 않아야 한다.
+#
+# isCovered를 우리가 보내면 coverageStatus와 어긋날 여지가 생긴다. 특히
+# PARTIALLY_COVERED를 false로 잘못 계산하면 부분 보장 담보가 "미보장"으로 표시된다.
+# sortOrder도 Spring이 배열 인덱스로 부여하기로 합의했다.
+def test_callback_omits_fields_spring_derives(monkeypatch, stub_pipeline_io, captured_callbacks):
+    monkeypatch.setattr(analysis_service, "embed_chunks", lambda chunks: {})
+    item = CoverageItem(
+        title="담보", category="baggage", isCovered=True, coverageStatus="COVERED",
+    )
+    monkeypatch.setattr(analysis_service, "extract_all", lambda chunks, **kwargs: ([item], []))
+
+    analysis_service.process_analysis(REQUEST, repository=FakeVectorRepository())
+
+    sent = captured_callbacks[0][1]["coverageItems"][0]
+    assert "isCovered" not in sent
+    assert "sortOrder" not in sent
+
+
+# analysis_results에 자리가 있는데 비어 있던 컬럼들. 어떤 모델로 만든 임베딩인지
+# 남기지 않으면, 모델을 바꿨을 때 어느 문서를 재색인해야 하는지 알 수 없다.
+def test_callback_carries_analysis_metadata(monkeypatch, stub_pipeline_io, captured_callbacks):
+    monkeypatch.setattr(analysis_service, "embed_chunks", lambda chunks: {})
+
+    analysis_service.process_analysis(REQUEST, repository=FakeVectorRepository())
+
+    payload = captured_callbacks[0][1]
+    assert payload["embeddingModel"]
+    assert payload["embeddingDimension"] == 1536
+    assert payload["rawResultJson"] is not None
+
+
+# summary는 현재 프론트에 노출되는 유일한 분석 텍스트다.
+# "청크 268개" 같은 내부 수치는 사용자에게 의미가 없다.
+def test_summary_names_coverages_not_internal_counts(monkeypatch, stub_pipeline_io, captured_callbacks):
+    monkeypatch.setattr(analysis_service, "embed_chunks", lambda chunks: {})
+    items = [
+        CoverageItem(title=f"담보{i}", category="baggage", isCovered=True, coverageStatus="COVERED")
+        for i in range(5)
+    ]
+    monkeypatch.setattr(analysis_service, "extract_all", lambda chunks, **kwargs: (items, []))
+
+    analysis_service.process_analysis(REQUEST, repository=FakeVectorRepository())
+
+    summary = captured_callbacks[0][1]["summary"]
+    assert "담보0" in summary and "외 2건" in summary
+    assert "청크" not in summary

@@ -13,6 +13,7 @@ from datetime import datetime, timezone
 from typing import Any
 from uuid import UUID, uuid4
 
+from app.schemas import db_enums
 from app.repositories.base import ChunkScope
 
 # policy_chunks의 컬럼 순서. INSERT 문과 행 튜플이 어긋나지 않도록 한 곳에서 관리한다.
@@ -90,13 +91,15 @@ def to_rows(
                 scope.policy_id,
                 scope.document_id,
                 index,
-                _truncate(chunk.get("source_content_type") or "paragraph", "source_content_type"),
+                # DB의 CHECK 제약값으로 번역한다. 우리 내부 값(paragraph/heading/list)을
+                # 그대로 넣으면 제약 위반으로 INSERT가 실패한다.
+                db_enums.source_content_type(chunk.get("source_content_type")),
                 chunk.get("page_start"),
                 chunk.get("page_end"),
                 _truncate(chunk.get("section_title"), "section_title"),
                 _truncate(chunk.get("clause_path") or None, "clause_path"),
                 _truncate(chunk.get("matched_category"), "coverage_category"),
-                _truncate(chunk.get("coverage_type") or "included", "clause_type"),
+                db_enums.clause_type(chunk.get("coverage_type")),
                 chunk["text"],
                 chunk.get("summary"),
                 embeddings.get(chunk["chunk_id"]),

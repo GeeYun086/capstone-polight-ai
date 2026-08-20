@@ -21,6 +21,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from app.core.config import get_settings  # noqa: E402
+from app.repositories.base import SearchScope
 from app.repositories.file_repository import FileVectorRepository  # noqa: E402
 from app.services.embedding_providers import (  # noqa: E402
     PROVIDERS,
@@ -93,7 +94,7 @@ def evaluate_provider(provider_name: str, questions: list[dict], policy_id: str,
         # BM25는 끈다 - 임베딩 성능만 비교하기 위해서다
         candidates = repository.search(
             vector,
-            policy_id=policy_id,
+            scope=SearchScope(document_id=policy_id),
             top_k=top_k * settings.mmr_candidate_multiplier,
         )
         hits = mmr_select(candidates, top_k=top_k, lambda_=settings.mmr_lambda)

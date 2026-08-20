@@ -4,144 +4,406 @@
     "type": "exclusion",
     "question": "임신이나 출산으로 인한 치료비도 보상되나요?",
     "gold": [
-      { "contains": "임신, 출산" }
+      {
+        "contains": "임신, 출산"
+      }
     ],
     "expected_points": [
       "보상하지 않는다",
       "회사가 보상하는 상해로 인한 경우는 예외"
-    ]
+    ],
+    "phrasing": "casual"
   },
   {
     "id": "Q02",
     "type": "coverage",
     "question": "항공편이 5시간 이상 지연되면 보상되나요?",
     "gold": [
-      { "contains": "4시간이상 지연" }
+      {
+        "contains": "4시간이상 지연"
+      }
     ],
     "expected_points": [
       "4시간 이상 지연 시 보상",
       "4시간 내 대체수단이 제공되지 않아야 함"
-    ]
+    ],
+    "phrasing": "casual"
   },
   {
     "id": "Q03",
     "type": "exclusion",
     "question": "시력교정술 비용은 보상되나요?",
     "gold": [
-      { "contains": "시력교정술" }
+      {
+        "contains": "시력교정술"
+      }
     ],
     "expected_points": [
       "보상하지 않는다",
       "국민건강보험 요양급여 대상 수술방법이 사용되지 않은 부분은 외모개선 목적으로 봄"
-    ]
+    ],
+    "phrasing": "casual"
   },
   {
     "id": "Q04",
     "type": "procedure",
     "question": "보험금을 청구하려면 어떤 서류가 필요한가요?",
     "gold": [
-      { "contains": "서류를 제출하고 보험금을 청구" }
+      {
+        "contains": "서류를 제출하고 보험금을 청구"
+      }
     ],
     "expected_points": [
       "보험금 청구서(회사 양식)",
       "사고증명서",
       "신분증"
-    ]
+    ],
+    "phrasing": "casual"
   },
   {
     "id": "Q05",
     "type": "limit",
     "question": "배상책임 보상한도액은 어떻게 정해지나요?",
     "gold": [
-      { "contains": "보상한도액: 회사와 계약자간에 약정한 금액" }
+      {
+        "contains": "보상한도액: 회사와 계약자간에 약정한 금액"
+      }
     ],
     "expected_points": [
       "회사와 계약자가 약정한 금액",
       "보험증권에 기재된 금액을 한도로 함"
-    ]
+    ],
+    "phrasing": "casual"
   },
   {
     "id": "Q06",
     "type": "coverage",
     "question": "여행 중에 카메라를 도난당하면 보상받을 수 있나요?",
     "gold": [
-      { "contains": "해외 여행 중에 휴대하는" },
-      { "contains": "해외여행 중에 생긴 우연한" }
+      {
+        "contains": "해외 여행 중에 휴대하는"
+      },
+      {
+        "contains": "해외여행 중에 생긴 우연한"
+      }
     ],
     "expected_points": [
       "휴대품손해 특별약관에서 보상",
       "분실은 제외"
-    ]
+    ],
+    "phrasing": "casual"
   },
   {
     "id": "Q07",
     "type": "coverage",
     "question": "해외에서 크게 다쳐서 한국으로 이송해야 하면 비용이 나오나요?",
     "gold": [
-      { "contains": "중대사고 구조송환비용 보험금으로 지급" }
+      {
+        "contains": "중대사고 구조송환비용 보험금으로 지급"
+      }
     ],
     "expected_points": [
       "중대사고 구조송환비용 보험금으로 지급",
       "계약자·피보험자 또는 법정상속인이 부담한 비용"
-    ]
+    ],
+    "phrasing": "casual"
   },
   {
     "id": "Q08",
     "type": "coverage",
     "question": "해외에서 여권을 잃어버리면 재발급 비용이 보상되나요?",
     "gold": [
-      { "contains": "여권을 분실하거나 도난당하여 재외공관에" }
+      {
+        "contains": "여권을 분실하거나 도난당하여 재외공관에"
+      }
     ],
     "expected_points": [
       "여행증명서 발급비용을 보상",
       "재외공관에 분실신고 필요"
-    ]
+    ],
+    "phrasing": "casual"
   },
   {
     "id": "Q09",
     "type": "exclusion",
     "question": "전쟁이나 내란 중에 다치면 보상되나요?",
     "gold": [
-      { "contains": "전쟁, 외국의 무력행사, 혁명, 내란" }
+      {
+        "contains": "전쟁, 외국의 무력행사, 혁명, 내란"
+      }
     ],
     "expected_points": [
       "보상하지 않는다"
-    ]
+    ],
+    "phrasing": "casual"
   },
   {
     "id": "Q10",
     "type": "coverage",
     "question": "해외에서 음식을 잘못 먹어 식중독에 걸리면 보상되나요?",
     "gold": [
-      { "contains": "음식물의 섭취로 인해 중독" }
+      {
+        "contains": "음식물의 섭취로 인해 중독"
+      }
     ],
     "expected_points": [
       "식중독 특별약관에서 보험금 지급",
       "해외여행 도중 음식물 섭취로 인한 중독"
-    ]
+    ],
+    "phrasing": "casual"
   },
   {
     "id": "Q11",
     "type": "procedure",
     "question": "보험금은 청구하고 나서 며칠 안에 받을 수 있나요?",
     "gold": [
-      { "contains": "접수증을 드리고" },
-      { "contains": "서류를 접수한 때에는" }
+      {
+        "contains": "접수증을 드리고"
+      },
+      {
+        "contains": "서류를 접수한 때에는"
+      }
     ],
     "expected_points": [
       "서류 접수일부터 3영업일 이내 지급",
       "조사·확인이 필요하면 기간이 초과될 수 있음"
-    ]
+    ],
+    "phrasing": "casual"
   },
   {
     "id": "Q12",
     "type": "procedure",
     "question": "사고가 나면 보험사에 언제 알려야 하나요?",
     "gold": [
-      { "contains": "지체 없이 그 사실을 회사에 알려야" }
+      {
+        "contains": "지체 없이 그 사실을 회사에 알려야"
+      }
     ],
     "expected_points": [
       "지체 없이 회사에 알려야 함"
+    ],
+    "phrasing": "casual"
+  },
+  {
+    "id": "P1F",
+    "type": "limit",
+    "phrasing": "formal",
+    "pair_id": "P1",
+    "question": "휴대품손해 특별약관의 자기부담금 공제 방식은 어떻게 되나요?",
+    "gold": [
+      {
+        "contains": "자기부담금을 공제한 금액으로"
+      }
+    ],
+    "expected_points": [
+      "1회 사고당 보험증권에 기재된 자기부담금을 공제"
+    ]
+  },
+  {
+    "id": "P1C",
+    "type": "limit",
+    "phrasing": "casual",
+    "pair_id": "P1",
+    "question": "가방 도둑맞았을 때 내가 부담해야 하는 돈이 있어요?",
+    "gold": [
+      {
+        "contains": "자기부담금을 공제한 금액으로"
+      }
+    ],
+    "expected_points": [
+      "1회 사고당 보험증권에 기재된 자기부담금을 공제"
+    ]
+  },
+  {
+    "id": "P2F",
+    "type": "coverage",
+    "phrasing": "formal",
+    "pair_id": "P2",
+    "question": "항공기납치 특별약관의 보험금 지급액은 얼마인가요?",
+    "gold": [
+      {
+        "contains": "매일 70,000원"
+      }
+    ],
+    "expected_points": [
+      "예정목적지에 도착할 수 없게 된 동안 매일 70,000원"
+    ]
+  },
+  {
+    "id": "P2C",
+    "type": "coverage",
+    "phrasing": "casual",
+    "pair_id": "P2",
+    "question": "비행기가 납치돼서 못 가면 하루에 얼마 나와요?",
+    "gold": [
+      {
+        "contains": "매일 70,000원"
+      }
+    ],
+    "expected_points": [
+      "예정목적지에 도착할 수 없게 된 동안 매일 70,000원"
+    ]
+  },
+  {
+    "id": "P3F",
+    "type": "coverage",
+    "phrasing": "formal",
+    "pair_id": "P3",
+    "question": "특정전염병 특별약관의 보험금 지급사유는 무엇인가요?",
+    "gold": [
+      {
+        "contains": "특정전염병에 감염되어"
+      }
+    ],
+    "expected_points": [
+      "특정전염병 분류표에 정한 전염병으로 진단받아 치료받은 경우"
+    ]
+  },
+  {
+    "id": "P3C",
+    "type": "coverage",
+    "phrasing": "casual",
+    "pair_id": "P3",
+    "question": "여행 갔다가 전염병 걸리면 보험금 나와요?",
+    "gold": [
+      {
+        "contains": "특정전염병에 감염되어"
+      }
+    ],
+    "expected_points": [
+      "특정전염병 분류표에 정한 전염병으로 진단받아 치료받은 경우"
+    ]
+  },
+  {
+    "id": "P4F",
+    "type": "limit",
+    "phrasing": "formal",
+    "pair_id": "P4",
+    "question": "해외상해의료비 자기부담금설정 추가특별약관의 보상 기준은?",
+    "gold": [
+      {
+        "contains": "초과하는 금액으로 보상"
+      }
+    ],
+    "expected_points": [
+      "보험증권에 기재된 금액을 초과하는 부분만 보상"
+    ]
+  },
+  {
+    "id": "P4C",
+    "type": "limit",
+    "phrasing": "casual",
+    "pair_id": "P4",
+    "question": "병원비 중에 내가 먼저 내야 하는 금액이 정해져 있나요?",
+    "gold": [
+      {
+        "contains": "초과하는 금액으로 보상"
+      }
+    ],
+    "expected_points": [
+      "보험증권에 기재된 금액을 초과하는 부분만 보상"
+    ]
+  },
+  {
+    "id": "P5F",
+    "type": "procedure",
+    "phrasing": "formal",
+    "pair_id": "P5",
+    "question": "적용환율 특별약관에서 보험금 환산 기준은 무엇인가요?",
+    "gold": [
+      {
+        "contains": "전신환 대고객매도율"
+      }
+    ],
+    "expected_points": [
+      "지급일의 전신환 대고객매도율로 환산"
+    ]
+  },
+  {
+    "id": "P5C",
+    "type": "procedure",
+    "phrasing": "casual",
+    "pair_id": "P5",
+    "question": "달러로 낸 병원비는 어떤 환율로 계산해주나요?",
+    "gold": [
+      {
+        "contains": "전신환 대고객매도율"
+      }
+    ],
+    "expected_points": [
+      "지급일의 전신환 대고객매도율로 환산"
+    ]
+  },
+  {
+    "id": "M1",
+    "type": "limit",
+    "phrasing": "casual",
+    "history": [
+      {
+        "role": "user",
+        "content": "항공편 지연되면 보상돼요?"
+      },
+      {
+        "role": "assistant",
+        "content": "4시간 이상 지연 시 보상됩니다."
+      }
+    ],
+    "question": "그럼 얼마까지 나와요?",
+    "gold": [
+      {
+        "contains": "항공기 및 수하물 지연"
+      }
+    ],
+    "expected_points": [
+      "보험가입금액 한도"
+    ]
+  },
+  {
+    "id": "M2",
+    "type": "exclusion",
+    "phrasing": "casual",
+    "history": [
+      {
+        "role": "user",
+        "content": "카메라 도난당하면 보상되나요?"
+      },
+      {
+        "role": "assistant",
+        "content": "휴대품손해 특별약관으로 보상됩니다. 단 분실은 제외입니다."
+      }
+    ],
+    "question": "그건 왜 안 되는 거예요?",
+    "gold": [
+      {
+        "contains": "보험의 목적의 방치 또는 분실"
+      }
+    ],
+    "expected_points": [
+      "분실은 보상하지 않는 사유에 해당한다"
+    ]
+  },
+  {
+    "id": "M3",
+    "type": "procedure",
+    "phrasing": "casual",
+    "history": [
+      {
+        "role": "user",
+        "content": "보험금 청구할 때 서류 뭐 필요해요?"
+      },
+      {
+        "role": "assistant",
+        "content": "보험금 청구서, 사고증명서, 신분증이 필요합니다."
+      }
+    ],
+    "question": "그거 어디서 발급받아요?",
+    "gold": [
+      {
+        "contains": "국외의 의료관련법에서 정한 의료기관"
+      }
+    ],
+    "expected_points": [
+      "국내 병원·의원 또는 국외 의료관련법에서 정한 의료기관에서 발급"
     ]
   }
 ]

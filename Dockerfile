@@ -1,7 +1,7 @@
 # AI/RAG 서버 이미지.
 #
-# 배포는 Spring과 분리된 별도 EC2에 한다. 같은 서버에 얹으면 약관 분석
-# (파싱·임베딩)이 도는 동안 CPU 경합으로 Spring API 응답까지 느려진다.
+# 배포는 Spring과 같은 EC2에 한다. 분석 1건의 CPU를 실측해보니 평균 0.1%로,
+# 대부분이 Upstage·OpenAI API 응답 대기라 경합이 없었다. 자세한 근거는 DEPLOY.md.
 
 FROM python:3.14-slim
 

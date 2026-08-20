@@ -63,7 +63,7 @@ def test_hybrid_normalizes_scores_after_fusion():
     repo.hits = [dense]
     repo.text_hits = [sparse]
 
-    results = hybrid_search(repo, "질의", [0.1] * 8, policy_id=None, top_k=8)
+    results = hybrid_search(repo, "질의", [0.1] * 8, scope=None, top_k=8)
 
     assert len(results) == 2
     for hit in results:
@@ -76,6 +76,6 @@ def test_hybrid_falls_back_to_dense_when_no_keyword_hits() -> None:
     repo.hits = [make_hit("a"), make_hit("b")]
     repo.text_hits = []
 
-    results = hybrid_search(repo, "질의", [0.1] * 8, policy_id=None, top_k=8)
+    results = hybrid_search(repo, "질의", [0.1] * 8, scope=None, top_k=8)
 
     assert [h.chunk_id for h in results] == ["a", "b"]

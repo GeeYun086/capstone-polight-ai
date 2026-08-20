@@ -1,0 +1,305 @@
+{
+  "per_question": [
+    {
+      "id": "Q01",
+      "type": "exclusion",
+      "gold_density": 10,
+      "rank": 1,
+      "phrasing": "casual",
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "Q02",
+      "type": "coverage",
+      "gold_density": 1,
+      "rank": null,
+      "phrasing": "casual",
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "Q03",
+      "type": "exclusion",
+      "gold_density": 9,
+      "rank": 1,
+      "phrasing": "casual",
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "Q04",
+      "type": "procedure",
+      "gold_density": 4,
+      "rank": 1,
+      "phrasing": "casual",
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "Q05",
+      "type": "limit",
+      "gold_density": 1,
+      "rank": 1,
+      "phrasing": "casual",
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "Q06",
+      "type": "coverage",
+      "gold_density": 3,
+      "rank": 2,
+      "phrasing": "casual",
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "Q07",
+      "type": "coverage",
+      "gold_density": 1,
+      "rank": null,
+      "phrasing": "casual",
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "Q08",
+      "type": "coverage",
+      "gold_density": 1,
+      "rank": null,
+      "phrasing": "casual",
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "Q09",
+      "type": "exclusion",
+      "gold_density": 12,
+      "rank": 1,
+      "phrasing": "casual",
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "Q10",
+      "type": "coverage",
+      "gold_density": 1,
+      "rank": null,
+      "phrasing": "casual",
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "Q11",
+      "type": "procedure",
+      "gold_density": 3,
+      "rank": 3,
+      "phrasing": "casual",
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "Q12",
+      "type": "procedure",
+      "gold_density": 2,
+      "rank": 2,
+      "phrasing": "casual",
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "P1F",
+      "type": "limit",
+      "gold_density": 1,
+      "rank": 1,
+      "phrasing": "formal",
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "P1C",
+      "type": "limit",
+      "gold_density": 1,
+      "rank": 1,
+      "phrasing": "casual",
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "P2F",
+      "type": "coverage",
+      "gold_density": 1,
+      "rank": null,
+      "phrasing": "formal",
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "P2C",
+      "type": "coverage",
+      "gold_density": 1,
+      "rank": null,
+      "phrasing": "casual",
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "P3F",
+      "type": "coverage",
+      "gold_density": 1,
+      "rank": null,
+      "phrasing": "formal",
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "P3C",
+      "type": "coverage",
+      "gold_density": 1,
+      "rank": null,
+      "phrasing": "casual",
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "P4F",
+      "type": "limit",
+      "gold_density": 2,
+      "rank": null,
+      "phrasing": "formal",
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "P4C",
+      "type": "limit",
+      "gold_density": 2,
+      "rank": null,
+      "phrasing": "casual",
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "P5F",
+      "type": "procedure",
+      "gold_density": 2,
+      "rank": null,
+      "phrasing": "formal",
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "P5C",
+      "type": "procedure",
+      "gold_density": 2,
+      "rank": null,
+      "phrasing": "casual",
+      "multiturn": false,
+      "fell_back": false
+    },
+    {
+      "id": "M1",
+      "type": "limit",
+      "gold_density": 2,
+      "rank": 6,
+      "phrasing": "casual",
+      "multiturn": true,
+      "fell_back": false
+    },
+    {
+      "id": "M2",
+      "type": "exclusion",
+      "gold_density": 1,
+      "rank": null,
+      "phrasing": "casual",
+      "multiturn": true,
+      "fell_back": false
+    },
+    {
+      "id": "M3",
+      "type": "procedure",
+      "gold_density": 2,
+      "rank": 1,
+      "phrasing": "casual",
+      "multiturn": true,
+      "fell_back": false
+    }
+  ],
+  "groups": {
+    "고유 조항 (gold 1~2개)": {
+      "n": 19,
+      "hit": 6,
+      "recall": 0.3157894736842105,
+      "mrr": 0.2456140350877193
+    },
+    "반복 조항 (gold 3개+)": {
+      "n": 6,
+      "hit": 6,
+      "recall": 1.0,
+      "mrr": 0.8055555555555555
+    },
+    "약관 용어": {
+      "n": 5,
+      "hit": 1,
+      "recall": 0.2,
+      "mrr": 0.2
+    },
+    "일상 표현": {
+      "n": 5,
+      "hit": 1,
+      "recall": 0.2,
+      "mrr": 0.2
+    },
+    "멀티턴 (재작성 후)": {
+      "n": 3,
+      "hit": 2,
+      "recall": 0.6666666666666666,
+      "mrr": 0.3888888888888889
+    }
+  },
+  "total": 25,
+  "mode": {
+    "mmr": true,
+    "hybrid": true,
+    "top_k": 8
+  },
+  "recall@1": 0.32,
+  "recall@3": 0.44,
+  "recall@5": 0.44,
+  "recall@8": 0.48,
+  "mrr": 0.38,
+  "missed": [
+    "Q02",
+    "Q07",
+    "Q08",
+    "Q10",
+    "P2F",
+    "P2C",
+    "P3F",
+    "P3C",
+    "P4F",
+    "P4C",
+    "P5F",
+    "P5C",
+    "M2"
+  ],
+  "filter": {
+    "clause_paths": [
+      "기본형 실손의료비 특별약관",
+      "해외여행중 배상책임 특별약관",
+      "해외여행중 휴대품손해(분실제외) 특별약관"
+    ],
+    "applied": 25,
+    "fell_back": 0
+  },
+  "meta": {
+    "note": "특약 필터 / 가상증권 minimal",
+    "questions": "C:\\Users\\HOME\\Documents\\GitHub\\polight-ai\\data\\eval\\questions.json",
+    "chunks_dir": "C:\\Users\\HOME\\Documents\\GitHub\\polight-ai\\data\\chunks",
+    "embeddings_dir": "C:\\Users\\HOME\\Documents\\GitHub\\polight-ai\\data\\embeddings",
+    "policy_id": "db_travel",
+    "embedding_provider": "upstage-1536",
+    "git_commit": "5c3e000"
+  }
+}
