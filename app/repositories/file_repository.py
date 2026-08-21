@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 def _scope_key(scope: SearchScope | None) -> str | None:
     if scope is None or (scope.is_empty() and not scope.has_clause_filter()):
         return None
-    return scope.document_id or scope.trip_id or "clause-filter"
+    return scope.terms_id or scope.document_id or scope.trip_id or "clause-filter"
 
 
 def _matches(chunk: dict, scope: SearchScope | None) -> bool:
@@ -26,7 +26,12 @@ def _matches(chunk: dict, scope: SearchScope | None) -> bool:
         return True
 
     if not scope.is_empty():
-        if scope.document_id:
+        # terms_id가 있으면 공용 약관 청크로 좁힌다(A안). document_id/trip_id는
+        # 개인 청크용이라, terms_id가 오면 그것을 우선한다.
+        if scope.terms_id:
+            if chunk.get("terms_id") != scope.terms_id:
+                return False
+        elif scope.document_id:
             if chunk.get("document_id") != scope.document_id:
                 return False
         elif chunk.get("trip_id") != scope.trip_id:

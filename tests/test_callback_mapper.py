@@ -5,7 +5,8 @@ DB 없이 확정 제약과의 어긋남을 잡는다. 아래 항목들은 틀리
 """
 
 from app.schemas.coverage import CoverageItem
-from app.services.callback_mapper import MAX_LENGTHS, to_payload
+from app.schemas.db_limits import MAX_LENGTHS
+from app.services.callback_mapper import to_payload
 
 
 def make_item(**overrides) -> CoverageItem:

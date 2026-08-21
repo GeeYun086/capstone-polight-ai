@@ -288,18 +288,19 @@ def test_no_clause_filter_keeps_everything_in_scope():
 # 평가는 파일 저장소로 돌리고 서비스는 pgvector로 돈다. 두 규칙이 어긋나면
 # 평가에서 검증한 동작이 실제로는 재현되지 않는다.
 def test_pg_scope_condition_includes_clause_filter_and_common_clauses():
+    # 검색이 공용 약관(policy_terms_chunks)으로 옮겨져 스코프 키가 terms_id다.
     condition, params = _scope_condition(
-        SearchScope(document_id="doc-1", clause_paths=("특약 A", "특약 B")), prefix="AND"
+        SearchScope(terms_id="terms-1", clause_paths=("특약 A", "특약 B")), prefix="AND"
     )
 
     assert "clause_path = ANY(%(clause_paths)s)" in condition
     assert "c.clause_path IS NULL" in condition, "공통 조항이 빠지면 청구 절차 질문이 죽는다"
     assert params["clause_paths"] == ["특약 A", "특약 B"]
-    assert params["document_id"] == "doc-1"
+    assert params["terms_id"] == "terms-1"
 
 
 def test_pg_scope_condition_unchanged_without_clause_filter():
-    condition, params = _scope_condition(SearchScope(document_id="doc-1"), prefix="AND")
+    condition, params = _scope_condition(SearchScope(terms_id="terms-1"), prefix="AND")
 
-    assert condition == "AND c.document_id = %(document_id)s"
-    assert params == {"document_id": "doc-1"}
+    assert condition == "AND c.terms_id = %(terms_id)s"
+    assert params == {"terms_id": "terms-1"}

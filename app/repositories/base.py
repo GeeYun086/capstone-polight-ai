@@ -47,9 +47,14 @@ class SearchScope:
     trip_id: str | None = None
     clause_paths: tuple[str, ...] | None = None
 
+    # 공용 약관(policy_terms_chunks) 스코프 키. A안에서 검색이 이 값으로 약관을 좁힌다.
+    # document_id/trip_id는 개인 청크(policy_chunks)용이고, 공용 약관은 terms_id로만
+    # 찾을 수 있다. 셋 중 terms_id가 있으면 그것을 우선한다.
+    terms_id: str | None = None
+
     def is_empty(self) -> bool:
-        """약관 범위(문서/여행)가 비었는지. clause_paths는 그 안에서 더 좁히는 조건이라 세지 않는다."""
-        return not self.document_id and not self.trip_id
+        """약관 범위(약관/문서/여행)가 비었는지. clause_paths는 그 안에서 더 좁히는 조건이라 세지 않는다."""
+        return not self.terms_id and not self.document_id and not self.trip_id
 
     def has_clause_filter(self) -> bool:
         return bool(self.clause_paths)

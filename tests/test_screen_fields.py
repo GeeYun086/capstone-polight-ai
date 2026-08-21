@@ -11,7 +11,8 @@
 
 import pytest
 
-from app.services.callback_mapper import MAX_LENGTHS, to_payload
+from app.schemas.db_limits import MAX_LENGTHS
+from app.services.callback_mapper import to_payload
 from app.schemas.coverage import CoverageItem
 from app.services.coverage_extractor import OUTPUT_SCHEMA, SYSTEM_PROMPT
 

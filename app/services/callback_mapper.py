@@ -14,6 +14,7 @@ DB 제약에 맞추는 일이 전부 여기 모여 있다. 변환 로직을 anal
 import logging
 
 from app.schemas import db_enums
+from app.schemas.db_limits import cut
 from app.schemas.analysis import (
     CoverageItemPayload,
     DetailItemPayload,
@@ -25,32 +26,6 @@ from app.schemas.analysis import (
 from app.schemas.coverage import CoverageItem
 
 logger = logging.getLogger(__name__)
-
-# 백엔드 회신에 실린 VARCHAR 길이. 초과하면 INSERT가 실패한다.
-#
-# sub_limits.value가 특히 위험하다. 약관 원문("보험가입금액을 한도로 실제 발생한
-# 비용 전액…")을 그대로 담으면 200자를 넘기기 쉽다.
-MAX_LENGTHS = {
-    "title": 200,
-    "subtitle": 500,
-    "category": 100,
-    "limit_label": 100,
-    "limit_currency": 10,
-    "document_name": 200,
-    "sub_limit_label": 100,
-    "sub_limit_value": 200,
-    "description": 500,
-}
-
-
-def _cut(value: str | None, key: str) -> str | None:
-    if value is None:
-        return None
-    limit = MAX_LENGTHS[key]
-    if len(value) <= limit:
-        return value
-    logger.info("%s가 %d자를 넘어 잘랐습니다 (%d자)", key, limit, len(value))
-    return value[:limit]
 
 
 def _dedupe_sources(
@@ -92,43 +67,43 @@ def _dedupe_sources(
 
 def to_payload(item: CoverageItem, chunk_id_map: dict[str, str]) -> CoverageItemPayload:
     return CoverageItemPayload(
-        title=_cut(item.title, "title"),
+        title=cut(item.title, "title"),
         coverageStatus=db_enums.coverage_status(item.coverage_status),
-        subtitle=_cut(item.subtitle, "subtitle"),
-        category=_cut(item.category, "category"),
-        limitLabel=_cut(item.limit_label, "limit_label"),
+        subtitle=cut(item.subtitle, "subtitle"),
+        category=cut(item.category, "category"),
+        limitLabel=cut(item.limit_label, "limit_label"),
         limitAmount=item.limit_amount,
-        limitCurrency=_cut(item.limit_currency, "limit_currency"),
+        limitCurrency=cut(item.limit_currency, "limit_currency"),
         # conditions는 TEXT 컬럼이라 길이 제한이 없다
         conditions=item.conditions,
         detailItems=[
             DetailItemPayload(
-                title=_cut(d.title, "title"),
-                subtitle=_cut(d.subtitle, "subtitle"),
+                title=cut(d.title, "title"),
+                subtitle=cut(d.subtitle, "subtitle"),
                 isCovered=d.is_covered,
             )
             for d in item.detail_items
         ],
         subLimits=[
             SubLimitPayload(
-                label=_cut(s.label, "sub_limit_label"),
-                value=_cut(s.value, "sub_limit_value"),
+                label=cut(s.label, "sub_limit_label"),
+                value=cut(s.value, "sub_limit_value"),
                 limitAmount=s.limit_amount,
-                limitCurrency=_cut(s.limit_currency, "limit_currency"),
-                description=_cut(s.description, "description"),
+                limitCurrency=cut(s.limit_currency, "limit_currency"),
+                description=cut(s.description, "description"),
             )
             for s in item.sub_limits
         ],
         requiredDocuments=[
             RequiredDocumentPayload(
-                documentName=_cut(r.document_name, "document_name"),
+                documentName=cut(r.document_name, "document_name"),
                 isMandatory=r.is_mandatory,
             )
             for r in item.required_documents
         ],
         exclusions=[
             ExclusionPayload(
-                title=_cut(e.title, "title"),
+                title=cut(e.title, "title"),
                 description=e.description,
                 sourceText=e.source_text,
                 severity=db_enums.severity(e.severity),

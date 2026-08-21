@@ -43,11 +43,21 @@ class RagQueryRequest(CamelModel):
 
     # 검색 범위. document_id가 있으면 그 약관만, 없으면 trip_id로 여행 단위로 넓힌다.
     #
-    # policy_id로 필터하지 않는다. 백엔드에 policies 행을 만드는 코드가 없어 이 값이
-    # 항상 null로 오고, SQL에서 "= NULL"은 아무 행과도 일치하지 않아 검색이 0건이 된다.
-    # 필드는 남겨두되 스코프로 쓰지 않는다.
+    # policy_id로 필터하지 않는다. 백엔드가 policies 테이블을 없앴고(V12) 이 값은 항상
+    # null이다. SQL에서 "= NULL"은 아무 행과도 일치하지 않아 스코프로 쓸 수 없다.
+    # 필드는 계약 호환을 위해 남겨둔다.
     document_id: str | None = None
     policy_id: str | None = None
+
+    # 공용 약관 식별자. A안(검색이 policy_terms_chunks만 봄)의 스코프 키다.
+    #
+    # 공용 약관은 사용자·문서에 매이지 않아 document_id/trip_id로는 못 찾는다.
+    # 백엔드가 증권 분석의 matched_terms_id를 꺼내 실어 보낸다(PR #38 후속).
+    #
+    # null이면 그 여행에 연결된 약관이 없다는 뜻이다. 그때는 약관 검색을 건너뛰고
+    # 증권 coverages만으로 답한다 - trip_id로 폴백하지 않는다(공용 약관은 trip에
+    # 매이지 않아 어차피 0건이고, 개인 약관을 잘못 끌어올 위험만 있다).
+    terms_id: str | None = None
 
     # 멀티턴 대화용. 없으면 단발 질의로 동작한다.
     session_id: str | None = None

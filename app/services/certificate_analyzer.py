@@ -24,6 +24,7 @@ from pathlib import Path
 from openai import OpenAI
 
 from app.core.config import get_settings
+from app.services.analysis_errors import AnalysisFailure
 
 logger = logging.getLogger(__name__)
 
@@ -31,8 +32,18 @@ logger = logging.getLogger(__name__)
 TERMINAL = {"completed", "failed", "cancelled", "incomplete"}
 
 
-class CertificateAnalysisError(RuntimeError):
-    """증권 분석 실패. process_analysis가 잡아 FAILED 콜백으로 바꾼다."""
+class CertificateAnalysisError(AnalysisFailure):
+    """증권 분석 실패. process_analysis가 잡아 FAILED 콜백으로 바꾼다.
+
+    인자로 주는 문자열은 로그용이다. 사용자에게는 user_message가 나간다.
+    """
+
+    user_message = "증권을 분석하지 못했습니다. 잠시 후 다시 시도해 주세요."
+
+
+# 설정이 빠진 것은 사용자가 파일을 바꿔 봐야 해결되지 않는다. 다시 시도하라고
+# 안내하면 같은 실패를 반복하게 되므로 문구를 따로 둔다.
+CONFIG_USER_MESSAGE = "분석 서버 설정 문제로 실패했습니다. 관리자에게 문의해 주세요."
 
 
 def agent_api_key() -> str:
@@ -51,12 +62,14 @@ def _client() -> OpenAI:
     key = agent_api_key()
     if not key:
         raise CertificateAnalysisError(
-            ".env에 UPSTAGE_API_KEY(또는 UPSTAGE_AGENT_API_KEY)가 설정되지 않았습니다."
+            ".env에 UPSTAGE_API_KEY(또는 UPSTAGE_AGENT_API_KEY)가 설정되지 않았습니다.",
+            user_message=CONFIG_USER_MESSAGE,
         )
     if not settings.upstage_agent_id:
         raise CertificateAnalysisError(
             ".env에 UPSTAGE_AGENT_ID가 설정되지 않았습니다. "
-            "Upstage Studio의 에이전트 ID(agt_로 시작)를 넣으십시오."
+            "Upstage Studio의 에이전트 ID(agt_로 시작)를 넣으십시오.",
+            user_message=CONFIG_USER_MESSAGE,
         )
     return OpenAI(api_key=key, base_url=settings.upstage_agent_base_url)
 

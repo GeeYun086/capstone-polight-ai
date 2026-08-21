@@ -17,8 +17,15 @@ from app.schemas.analysis import (
     AnalysisFailCallback,
     AnalysisStartRequest,
 )
+from app.services.analysis_errors import AnalysisFailure
 from app.services.callback_mapper import to_payload
-from app.services.certificate_adapter import to_payloads
+from app.services.certificate_adapter import (
+    coverages_complete,
+    describe_structure,
+    insurance_period,
+    looks_like_certificate,
+    to_payloads,
+)
 from app.services.certificate_analyzer import CertificateAnalysisError, analyze_certificate
 from app.services.chunking_service import parse_and_chunk
 from app.services.coverage_extractor import extract_all
@@ -76,7 +83,73 @@ def _download_pdf(download_url: str, document_id: str) -> Path:
                 logger.warning("PDF 내려받기 실패 (%d/%d): %s", attempt, DOWNLOAD_MAX_ATTEMPTS, e)
                 time.sleep(2.0 * attempt)
 
-    raise RuntimeError(f"약관 PDF를 내려받지 못했습니다 ({download_url}): {last_error}")
+    # 주소를 사용자 문구에 넣지 않는다. presigned URL에는 서명이 붙어 있고,
+    # 실패 사유는 analysis_results.failure_reason에 영구 저장된 뒤 화면에 뜬다.
+    raise AnalysisFailure(
+        f"PDF를 내려받지 못했습니다 ({download_url}): {last_error}",
+        user_message="문서를 내려받지 못했습니다. 잠시 후 다시 시도해 주세요.",
+    )
+
+
+# 암호가 걸린 PDF를 여기서 처리한다.
+#
+# PDF 암호는 두 종류이고, 우리에게 문제가 되는 것은 하나뿐이다.
+#
+#   권한(소유자) 암호   편집·인쇄만 제한. needs_pass=0이고 본문이 읽힌다. 그냥 통과
+#   열기(사용자) 암호   needs_pass=1. 본문을 못 읽는다. 이것만 처리 대상
+#
+# 보험사 증권에서 "보호된 문서"로 보이는 것 상당수가 권한 암호만이라 지금도
+# 정상 동작한다.
+#
+# 열기 암호는 그냥 두면 조용히 망가진다. fitz.open()이 성공하고 page_count까지
+# 읽혀 라우팅을 통과하고, 잠긴 파일이 Upstage에 올라가 본문이 빈다. 담보 0건 ->
+# "증권 원본 파일인지 확인해 주세요"가 나가는데 파일은 맞고 잠겨 있을 뿐이라
+# 사용자는 같은 파일을 계속 올린다. 매번 에이전트 호출 비용도 나간다.
+#
+# 암호를 받으면 복호화한다. 사용자가 뷰어에서 암호를 없애는 것은 유료 기능이라
+# 실질적으로 어렵지만, 사용자는 암호를 알고 있다. 파일을 고치게 하는 대신 암호만
+# 받는 편이 낫다. 추측은 하지 않는다 - 생년월일로 열리는 경우가 많아도 그 값은
+# 우리에게 없고, 있다고 해도 개인정보로 잠금을 자동으로 풀 일은 아니다.
+def _unlock_or_reject(pdf_path: Path, password: str | None) -> None:
+    try:
+        doc = fitz.open(pdf_path)
+    except Exception as e:
+        # 열지도 못하는 것은 다른 문제다(손상·PDF 아님). 뒤 단계에서 드러난다.
+        logger.warning("PDF를 열어보지 못해 잠금 여부를 확인하지 못했습니다: %s", e)
+        return
+
+    unlocked: Path | None = None
+    try:
+        if not doc.needs_pass:
+            return
+
+        if not password:
+            raise AnalysisFailure(
+                f"열기 암호가 걸린 PDF인데 비밀번호가 오지 않았습니다 ({pdf_path.name})",
+                user_message=(
+                    "비밀번호가 설정된 파일입니다. 비밀번호를 입력하거나 해제한 뒤 "
+                    "다시 시도해 주세요."
+                ),
+            )
+
+        if not doc.authenticate(password):
+            # 암호를 로그에 남기지 않는다. 틀렸다는 사실만 남긴다.
+            raise AnalysisFailure(
+                f"PDF 비밀번호가 맞지 않습니다 ({pdf_path.name})",
+                user_message="비밀번호가 맞지 않습니다. 다시 확인해 주세요.",
+            )
+
+        # 복호화본을 만들어 원본 자리에 덮어쓴다. 뒤 단계와 정리 코드가 경로를
+        # 하나만 알면 되도록 파일을 늘리지 않는다.
+        unlocked = pdf_path.with_suffix(".unlocked.pdf")
+        doc.save(str(unlocked), encryption=fitz.PDF_ENCRYPT_NONE)
+    finally:
+        # 윈도우에서는 열려 있는 파일을 덮어쓸 수 없어 먼저 닫는다.
+        doc.close()
+
+    if unlocked:
+        unlocked.replace(pdf_path)
+        logger.info("잠긴 PDF를 복호화했습니다: %s", pdf_path.name)
 
 
 # 화면에 노출되는 요약 문구.
@@ -151,16 +224,46 @@ def _remove_quietly(path: Path) -> None:
         logger.warning("내려받은 증권을 지우지 못했습니다 (%s): %s", path, e)
 
 
+# 두께로 증권과 약관을 가르려 했으나 폐기했다.
+#
+# 현대해상은 증권 2장과 약관 153장을 한 파일로 발급한다(실물 157페이지). 두께로
+# 보면 약관인데 실제로는 정상 증권이다. 오분류 판정은 에이전트가 증권 고유 항목을
+# 뽑았는지로 한다(certificate_adapter.looks_like_certificate).
+#
+# 페이지 수는 진단 정보로만 남긴다.
+
+
+def _page_count(pdf_path: Path) -> int | None:
+    """페이지 수. 못 세면 None. 세는 데 실패한 것으로 분석을 멈추지는 않는다."""
+    try:
+        with fitz.open(pdf_path) as doc:
+            return doc.page_count
+    except Exception as e:
+        logger.warning("페이지 수를 세지 못했습니다: %s", e)
+        return None
+
+
 def _resolve_document_type(request: AnalysisStartRequest, pdf_path: Path) -> str:
     """약관인지 증권인지 정한다. 요청에 명시돼 있으면 그것을 믿는다."""
     if request.document_type:
+        # 믿는다. 다만 몇 페이지가 들어왔는지는 남긴다.
+        #
+        # 증권이 두꺼우면 오분류일 수도 있고(프론트가 documentKind를 보내지 않아
+        # 백엔드 기본값 CERTIFICATE로 흘러온 경우), 약관 합본일 수도 있다.
+        # 두 경우를 두께로는 구분할 수 없으니 판정하지 않고 기록만 한다.
+        # 합본이면 에이전트에 약관 150여 장이 함께 올라가 분석이 느려진다.
+        pages = _page_count(pdf_path) if request.document_type == "CERTIFICATE" else None
+        if pages is not None and pages > CERTIFICATE_MAX_PAGES:
+            logger.info(
+                "CERTIFICATE로 요청된 문서가 %d페이지입니다 (약관 합본이거나 오분류). "
+                "documentId=%s",
+                pages, request.document_id,
+            )
         return request.document_type
 
-    try:
-        with fitz.open(pdf_path) as doc:
-            pages = doc.page_count
-    except Exception as e:
-        logger.warning("페이지 수를 세지 못해 약관으로 처리합니다: %s", e)
+    pages = _page_count(pdf_path)
+    if pages is None:
+        logger.warning("페이지 수를 세지 못해 약관으로 처리합니다")
         return "TERMS"
 
     resolved = "CERTIFICATE" if pages <= CERTIFICATE_MAX_PAGES else "TERMS"
@@ -177,10 +280,34 @@ def _resolve_document_type(request: AnalysisStartRequest, pdf_path: Path) -> str
 def _process_certificate(request: AnalysisStartRequest, pdf_path: Path) -> None:
     certificate = analyze_certificate(pdf_path)
 
+    # 성공이든 실패든 한 줄 남긴다. 실패했을 때 이 줄이 유일한 단서이고,
+    # 성공했을 때는 나중에 Studio에서 스키마가 바뀌었는지 비교할 기준이 된다.
+    # 값은 넣지 않는다(describe_structure 주석 참고).
+    logger.info("증권 에이전트 출력 구조: %s", describe_structure(certificate))
+
     payloads = to_payloads(certificate)
     if not payloads:
+        if not looks_like_certificate(certificate):
+            # 담보가 없는 것이 아니라 애초에 증권이 아니다. 이걸 "담보를 못
+            # 찾았다"로 끝내면 사용자는 증권을 다시 올려도 같은 실패를 본다.
+            raise CertificateAnalysisError(
+                "증권 고유 항목(증권번호·보험기간·보험사)이 하나도 없다. 증권이 아닌 "
+                f"문서로 보인다 (documentId={request.document_id}): "
+                + describe_structure(certificate),
+                user_message="증권이 아닌 문서로 보입니다. 보험 증권 파일인지 확인해 주세요.",
+            )
         raise CertificateAnalysisError(
-            "증권에서 보장 담보를 찾지 못했습니다. 에이전트 출력 형식을 확인하십시오."
+            "증권에서 보장 담보를 찾지 못했습니다. 에이전트 출력 구조: "
+            + describe_structure(certificate),
+            user_message="증권에서 보장 내용을 찾지 못했습니다. 증권 원본 파일인지 확인해 주세요.",
+        )
+
+    start_date, end_date = insurance_period(certificate)
+    if not start_date or not end_date:
+        # policies.start_date/end_date가 NOT NULL이라, 비면 백엔드가 행을 만들 수 없다.
+        logger.warning(
+            "증권에서 보험기간을 읽지 못했습니다 (%s ~ %s). 에이전트 출력 키를 확인하십시오.",
+            start_date, end_date,
         )
 
     callback = AnalysisCompleteCallback(
@@ -190,6 +317,11 @@ def _process_certificate(request: AnalysisStartRequest, pdf_path: Path) -> None:
         # 백엔드가 이 둘로 약관을 찾아 연결한다.
         insurerName=certificate.get("insurer_name"),
         productName=certificate.get("product_name") or certificate.get("document_title"),
+        # policies의 NOT NULL 두 개. 증권에만 있는 값이다.
+        startDate=start_date,
+        endDate=end_date,
+        # 담보 목록이 표 전체인지. 폴백으로 만든 목록은 근거가 달라 켜지 않는다.
+        coveragesComplete=coverages_complete(certificate),
         rawResultJson=json.dumps(certificate, ensure_ascii=False),
     )
 
@@ -236,6 +368,12 @@ def process_analysis(
     try:
         pdf_path = _download_pdf(request.download_url, request.document_id)
 
+        # 약관·증권 공통. 잠긴 파일은 어느 경로로 가도 본문이 비어 있다.
+        _unlock_or_reject(
+            pdf_path,
+            request.document_password.get_secret_value() if request.document_password else None,
+        )
+
         # 증권이면 여기서 끝난다. 청킹도 임베딩도 하지 않는다.
         # 증권은 화면에 뜰 담보 목록이지 챗봇이 검색할 근거가 아니다.
         if _resolve_document_type(request, pdf_path) == "CERTIFICATE":
@@ -261,9 +399,16 @@ def process_analysis(
             analysis_result_id=request.analysis_result_id,
             scope=scope,
         )
-    except Exception as e:
-        logger.exception("analysis pipeline failed: %s", request.analysis_result_id)
-        _safe_notify_fail(request.analysis_result_id, str(e))
+    except AnalysisFailure as e:
+        # 사용자에게는 e.user_message만 나간다. 원인은 위 traceback에 남는다.
+        logger.exception("분석 실패: %s", request.analysis_result_id)
+        _safe_notify_fail(request.analysis_result_id, e.user_message)
+        return
+    except Exception:
+        # 우리가 예상하지 못한 예외다. 메시지에 무엇이 들어 있을지 알 수 없으니
+        # 사용자에게 보내지 않는다. 추적은 traceback과 analysisResultId로 한다.
+        logger.exception("분석 실패 (예상하지 못한 오류): %s", request.analysis_result_id)
+        _safe_notify_fail(request.analysis_result_id, AnalysisFailure.user_message)
         return
 
     # pgvector 저장소는 INSERT하며 policy_chunks.id(UUID)를 만들고 청크에 실어준다.

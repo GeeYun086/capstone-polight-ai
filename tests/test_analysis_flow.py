@@ -193,9 +193,13 @@ def test_source_chunk_ids_are_mapped_to_saved_uuids(monkeypatch, stub_pipeline_i
 
 
 # 파이프라인이 실패하면 실패 콜백이 나가야 한다. 조용히 끝나면 Spring은 영원히 PROCESSING이다.
+#
+# errorMessage에는 예상하지 못한 예외의 메시지를 싣지 않는다. 그 문자열이
+# analysis_results.failure_reason에 영구 저장된 뒤 사용자 화면에 뜨는데,
+# 안에 무엇이 들어 있을지(주소·키·원문) 알 수 없다.
 def test_failure_sends_fail_callback(monkeypatch, captured_callbacks):
     def boom(url, doc_id):
-        raise RuntimeError("다운로드 실패")
+        raise RuntimeError("스택 어딘가의 내부 문구")
 
     monkeypatch.setattr(analysis_service, "_download_pdf", boom)
 
@@ -206,7 +210,8 @@ def test_failure_sends_fail_callback(monkeypatch, captured_callbacks):
     assert kind == "fail"
     assert payload["status"] == "FAILED"
     assert payload["analysisResultId"] == "analysis-1"
-    assert "다운로드 실패" in payload["errorMessage"]
+    assert payload["errorMessage"]
+    assert "내부 문구" not in payload["errorMessage"]
 
 
 # 콜백 전송 실패는 분석 성공/실패와 별개 문제이므로 파이프라인을 되돌리지 않는다.

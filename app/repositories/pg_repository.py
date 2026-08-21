@@ -41,7 +41,7 @@ def _normalize(vector) -> list[float] | None:
 # 빠뜨리면 mmr_select가 "임베딩이 없다"며 재순위를 건너뛰어, 반복되는 표준 조항이
 # top-k를 잠식하는 문제가 그대로 돌아온다(파일 저장소에서 Recall@8 83%->92% 차이를 만든 부분).
 SELECT_FIELDS = """
-    c.id, c.document_id, c.chunk_index, c.page_start, c.page_end,
+    c.id, c.terms_id, c.chunk_index, c.page_start, c.page_end,
     c.section_title, c.clause_path, c.coverage_category, c.clause_type, c.content,
     c.embedding
 """
@@ -58,8 +58,8 @@ SELECT_FIELDS = """
 # 비교값은 DB에 저장된 형태(COVERAGE/EXCLUSION)여야 한다. 내부 값(included/excluded)을
 # 그대로 쓰면 JOIN이 한 건도 매칭되지 않아 면책 동반 조회가 조용히 죽는다.
 RELATED_JOIN = f"""
-LEFT JOIN policy_chunks rel
-       ON rel.analysis_result_id = c.analysis_result_id
+LEFT JOIN policy_terms_chunks rel
+       ON rel.terms_id = c.terms_id
       AND rel.chunk_index = c.chunk_index + 1
       AND c.clause_type = '{db_enums.CLAUSE_TYPE["included"]}'
       AND rel.clause_type = '{db_enums.CLAUSE_TYPE["excluded"]}'
@@ -76,7 +76,7 @@ ON CONFLICT (analysis_result_id, chunk_index) DO NOTHING
 SEARCH_SQL = f"""
 SELECT {SELECT_FIELDS}, rel.id AS related_id,
        1 - (c.embedding <=> %(vector)s::vector) AS score
-FROM policy_chunks c
+FROM policy_terms_chunks c
 {RELATED_JOIN}
 WHERE c.embedding IS NOT NULL
   {{scope}}
@@ -86,7 +86,7 @@ LIMIT %(top_k)s
 
 TEXT_SQL = f"""
 SELECT {SELECT_FIELDS}, rel.id AS related_id, 0.0 AS score
-FROM policy_chunks c
+FROM policy_terms_chunks c
 {RELATED_JOIN}
 {{scope}}
 """
@@ -95,7 +95,7 @@ FROM policy_chunks c
 # ("operator does not exist: uuid = text"). 명시적으로 캐스팅한다.
 BY_IDS_SQL = f"""
 SELECT {SELECT_FIELDS}, rel.id AS related_id, 0.0 AS score
-FROM policy_chunks c
+FROM policy_terms_chunks c
 {RELATED_JOIN}
 WHERE c.id = ANY(%(ids)s::uuid[])
 """
@@ -114,13 +114,13 @@ def _scope_condition(scope: SearchScope | None, prefix: str) -> tuple[str, dict]
     conditions: list[str] = []
     params: dict = {}
 
-    # document_id가 있으면 그 약관만 본다. 없으면 여행 단위로 넓힌다.
-    if scope.document_id:
-        conditions.append("c.document_id = %(document_id)s")
-        params["document_id"] = scope.document_id
-    elif scope.trip_id:
-        conditions.append("c.trip_id = %(trip_id)s")
-        params["trip_id"] = scope.trip_id
+    # 공용 약관(policy_terms_chunks)은 terms_id로만 좁힌다(A안). document_id/trip_id는
+    # 개인 청크(policy_chunks)용이었는데 검색이 공용 약관으로 옮겨져 더 이상 쓰지 않는다.
+    # terms_id가 없으면 rag_service가 검색을 아예 건너뛰므로(약관 없는 여행), 여기까지
+    # terms_id 없이 오는 경우는 없다. 그래도 방어적으로 조건을 붙이지 않는다.
+    if scope.terms_id:
+        conditions.append("c.terms_id = %(terms_id)s")
+        params["terms_id"] = scope.terms_id
 
     # 증권에서 온 특약명 필터.
     #
@@ -343,7 +343,7 @@ class PgVectorRepository:
     def _to_hit(row: tuple) -> ChunkHit:
         (
             chunk_id,
-            document_id,
+            terms_id,
             chunk_index,
             page_start,
             page_end,
@@ -359,7 +359,9 @@ class PgVectorRepository:
 
         hit = ChunkHit(
             chunk_id=str(chunk_id),
-            document_id=str(document_id),
+            # 공용 약관은 문서가 아니라 약관(terms)에 매인다. ChunkHit.document_id 자리에
+            # terms_id를 싣는다 - 응답 sources의 참조 식별자로 쓰인다.
+            document_id=str(terms_id),
             page_start=page_start or 0,
             page_end=page_end or 0,
             section_title=section_title or "",

@@ -201,9 +201,14 @@ def test_terms_pdf_is_kept(tmp_path, monkeypatch):
     assert pdf.exists(), "약관까지 지우면 재분석 때 다시 과금된다"
 
 
-def test_certificate_failure_sends_fail_callback(monkeypatch, captured):
+# 실패 콜백은 나가야 한다. 다만 실린 문구는 사용자용이어야 한다.
+#
+# errorMessage는 analysis_results.failure_reason에 그대로 저장되고 프론트
+# 화면까지 내려간다. 실제로 "에이전트 출력 형식을 확인하십시오"라는 내부
+# 지시문이 사용자에게 노출됐다. 사용자가 할 수 있는 일이 아니다.
+def test_certificate_failure_sends_user_facing_message(monkeypatch, captured):
     def explode(path):
-        raise analysis_service.CertificateAnalysisError("에이전트 설정 오류")
+        raise analysis_service.CertificateAnalysisError("에이전트 설정 오류. Studio를 확인하십시오")
 
     monkeypatch.setattr(analysis_service, "analyze_certificate", explode)
 
@@ -211,4 +216,6 @@ def test_certificate_failure_sends_fail_callback(monkeypatch, captured):
     analysis_service.process_analysis(request, repository=None)
 
     assert "complete" not in captured
-    assert captured["fail"].error_message == "에이전트 설정 오류"
+    sent = captured["fail"].error_message
+    assert sent == analysis_service.CertificateAnalysisError.user_message
+    assert "Studio" not in sent, "내부 진단이 사용자 화면까지 나간다"

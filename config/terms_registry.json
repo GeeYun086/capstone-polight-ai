@@ -82,6 +82,13 @@
         "보상 조건을 답하게 되므로, 확인되면 이 항목을 정리해야 한다."
       ],
       "underwriter_aliases": ["한화손해보험", "한화손해보험(주)"]
+    },
+    {
+      "id": "meritz_travel_platform",
+      "insurer": "메리츠화재",
+      "product": "해외여행보험(플랫폼)",
+      "aliases": ["해외여행보험", "메리츠 해외여행보험(플랫폼)"],
+      "revision": null
     }
   ]
 }
