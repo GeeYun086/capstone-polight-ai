@@ -51,7 +51,7 @@ flowchart LR
     E --> F
 ```
 
-### 2. 약관 색인·적재 (운영자가 미리)
+### 2. 약관 색인·적재
 
 ```mermaid
 flowchart LR
@@ -60,7 +60,7 @@ flowchart LR
     B --> D[migrate_terms_coverages.py<br/>보장 규칙 → policy_terms_coverages]
 ```
 
-### 3. AI 챗봇 (질문 시 실시간, RAG)
+### 3. AI 챗봇 (RAG 기반 실시간 응답)
 
 ```mermaid
 flowchart LR
